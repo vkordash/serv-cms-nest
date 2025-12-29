@@ -117,7 +117,7 @@ export class EditorService {
                 const  res  = await this.pool.query(query_upload,[rows.id, id_menu, id_pers]);
             }
             console.log(rows);
-            return rows[0];             
+            return rows[0]['id'];             
         }  catch (error) {
             this.logger.error(`❌ Помилка збереження редактора (id=${id_page}): ${error.message}`, error.stack);
             throw new InternalServerErrorException(`❌ Помилка збереження редактора (id=${id_page})`);
