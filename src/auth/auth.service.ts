@@ -114,7 +114,10 @@ export class AuthService {
 
   async  generateDovecotPassword(password, scheme = 'HMAC-MD5') {
       try {
-          const command = `dovecotpw -s ${scheme} -p ${password}`;
+          //const command = `dovecotpw -s ${scheme} -p ${password}`;
+          const command = `doveadm pw -s ${scheme} -p ${password}`;
+          //sudo doveadm pw -s HMAC-MD5 -p Rjhlfi
+
           const { stdout } = await this.execPromise(command);
           return stdout.trim();
       } catch (error) {
