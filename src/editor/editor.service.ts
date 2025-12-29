@@ -99,6 +99,8 @@ export class EditorService {
                 [id_menu,text, id_pers, id_org]
                 : [id_page,text,id_pers]; 
 
+            console.log(query);
+            console.log(_arg);
             const { rows } = await this.pool.query(query,_arg);
             
             if (id_page==0) {
@@ -111,6 +113,7 @@ export class EditorService {
                         id_menu=$2 and 
                         create_user = $3
                 `; 
+                
                 const  res  = await this.pool.query(query_upload,[rows.id, id_menu, id_pers]);
             }
             console.log(rows);
