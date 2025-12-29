@@ -29,6 +29,7 @@ async function bootstrap() {
               'https://menarada.gov.ua',
               'http://localhost:4200',
               'http://localhost:4201',
+              'http://10.8.0.1:4201',
           ];
 
           console.log('cors '+origin);
