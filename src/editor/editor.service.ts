@@ -98,7 +98,8 @@ export class EditorService {
             const _arg = (id_page==0) ? 
                 [id_menu, text, id_pers, id_pers, id_org]
                 : [id_page,text,id_pers]; 
-
+            
+            console.log(id_org);
             console.log(query);
             console.log(_arg);
             const { rows } = await this.pool.query(query,_arg);
