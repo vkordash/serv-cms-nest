@@ -59,10 +59,10 @@ export class EditorService {
             throw new BadRequestException('Параметр "pageId" обязателен и должен быть числом');
         }
 
-        const id_org = Number(this.configService.get<string>('ID_ORG')) ?? 0;
-
         try {
-           
+            
+            const id_org = Number(this.configService.get<string>('ID_ORG')) ?? 0;
+
             const query = (id_page==0) ? 
                 `
                 INSERT INTO
@@ -118,7 +118,7 @@ export class EditorService {
                 const  res  = await this.pool.query(query_upload,[rows.id, id_menu, id_pers]);
             }
             console.log(rows);
-            return rows[0]['id'];             
+            return rows;             
         }  catch (error) {
             this.logger.error(`❌ Помилка збереження редактора (id=${id_page}): ${error.message}`, error.stack);
             throw new InternalServerErrorException(`❌ Помилка збереження редактора (id=${id_page})`);
