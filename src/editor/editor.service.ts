@@ -83,8 +83,8 @@ export class EditorService {
                         now(),
                         $3,
                         now(),
-                        $3,
-                        $4
+                        $4,
+                        $5
                     ) 
                     RETURNING id, id_menu`
                 : 
@@ -96,7 +96,7 @@ export class EditorService {
                 WHERE id=$1 
                 RETURNING id, id_menu`;
             const _arg = (id_page==0) ? 
-                [id_menu,text, id_pers, id_org]
+                [id_menu, text, id_pers, id_pers, id_org]
                 : [id_page,text,id_pers]; 
 
             console.log(query);
