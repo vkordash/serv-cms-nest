@@ -30,6 +30,7 @@ async function bootstrap() {
               'http://localhost:4200',
               'http://localhost:4201',
               'http://10.8.0.1:4201',
+              'http://10.8.0.1',
           ];
 
           console.log('cors '+origin);
