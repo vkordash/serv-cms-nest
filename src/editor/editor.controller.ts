@@ -75,7 +75,7 @@ export class EditorController {
           if (!file) {
             throw new BadRequestException('Файл не загружен');
           }
-          file.path = file.path.replace('/var/www', '');
+        //  file.path = file.path.replace('/var/www', '');
           const params = {
                 id_page:body.pageId,
                 id_menu:body.menuId,
@@ -129,8 +129,8 @@ export class EditorController {
 
         
         files: files.map(file => {
-            //params.path=file.path;
-            params.path = file.path.replace('/var/www', '');
+            params.path=file.path;
+            //params.path = file.path.replace('/var/www', '');
             params.srcDir=file.destination;
             const lnk = this.EditorService.Upload_Files(params);
             console.log(file);
