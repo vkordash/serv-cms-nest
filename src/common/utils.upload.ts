@@ -26,8 +26,10 @@ export function transliterate(text: string): string {
 export function createUploadPath () {
   const year = new Date().getFullYear();
   const month = String(new Date().getMonth() + 1).padStart(2, '0'); // Добавляем 0 перед цифрами 1-9
-  const uploadPath = path.join('./web_docs', year.toString(), month);
-  const lnkPath = path.join('./uploads', year.toString(), month);
+  //const uploadPath = path.join('./web_docs', year.toString(), month);
+  //const lnkPath = path.join('./uploads', year.toString(), month);
+  const uploadPath = path.join('/var/www/web_docs', year.toString(), month);
+  const lnkPath = path.join('/var/www/uploads', year.toString(), month);
 
   if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true }); // Создаём каталоги, если их нет
