@@ -129,12 +129,12 @@ export class EditorController {
 
         
         files: files.map(file => {
-            params.path=file.path;
-            //params.path = file.path.replace('/var/www', '');
+            //params.path=file.path;
+            params.path = file.path.replace('var/www/uploads', 'web_docs');
             params.srcDir=file.destination;
-            const lnk = this.EditorService.Upload_Files(params);
+          //  const lnk = this.EditorService.Upload_Files(params);
             console.log(file);
-            console.log(lnk);
+          //  console.log(lnk);
         });
         
 
