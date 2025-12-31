@@ -75,7 +75,7 @@ export class EditorController {
           if (!file) {
             throw new BadRequestException('Файл не загружен');
           }
-        //  file.path = file.path.replace('/var/www', '');
+          file.path = file.path.replace('var/www/', '');
           const params = {
                 id_page:body.pageId,
                 id_menu:body.menuId,
