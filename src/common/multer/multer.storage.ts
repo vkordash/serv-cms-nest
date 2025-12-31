@@ -1,6 +1,7 @@
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { transliterate, createUploadPath } from '../utils.upload';
+import { ConfigService } from '@nestjs/config';
 
 export const multerDiskStorage = diskStorage({
   destination: (req, file, cb) => {
