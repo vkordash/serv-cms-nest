@@ -39,24 +39,24 @@ export function createUploadPath () {
   const year = new Date().getFullYear();
   const month = String(new Date().getMonth() + 1).padStart(2, '0'); // Добавляем 0 перед цифрами 1-9
   //const lnkPath = path.join('./web_docs', year.toString(), month);
-  const uploadPath = path.join('./uploads', year.toString(), month);
+  //const uploadPath = path.join('./uploads', year.toString(), month);
   
 
-  if (!fs.existsSync(uploadPath)) {
+  /*if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true }); // Создаём каталоги, если их нет
-  }
+  }*/
 
  /* if (!fs.existsSync(lnkPath)) {
     fs.mkdirSync(lnkPath, { recursive: true }); // Создаём каталоги, если их нет
   }
-
-/*  const uploadPath_1 = path.join(WEB_DOCS, year.toString(), month);
-  const lnkPath_1 = path.join(UPLOADS, year.toString(), month);
-  console.log(uploadPath_1);
-  if (!fs.existsSync(uploadPath_1)) {
-    fs.mkdirSync(uploadPath_1, { recursive: true }); // Создаём каталоги, если их нет
+*/
+  const lnkPath = path.join(WEB_DOCS, year.toString(), month);
+  const uploadPath = path.join(UPLOADS, year.toString(), month);
+  console.log(uploadPath);
+  if (!fs.existsSync(uploadPath)) {
+    fs.mkdirSync(uploadPath, { recursive: true }); // Создаём каталоги, если их нет
   }
-
+/*
   console.log(lnkPath_1);
   if (!fs.existsSync(lnkPath_1)) {
     fs.mkdirSync(lnkPath_1, { recursive: true }); // Создаём каталоги, если их нет
