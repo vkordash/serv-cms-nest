@@ -127,15 +127,15 @@ export class EditorController {
             srcDir: ''
         };
 
-        
+    /*    
         files: files.map(file => {
             //params.path=file.path;
-            params.path = file.path.replace('var/www/uploads', 'web_docs');
+            //params.path = file.path.replace('var/www/uploads', 'web_docs');
             params.srcDir=file.destination;
           //  const lnk = this.EditorService.Upload_Files(params);
             console.log(file);
           //  console.log(lnk);
-        });
+        });*/
         
 
       return {
@@ -145,7 +145,7 @@ export class EditorController {
           filename: file.filename,
           size: file.size,
           mimetype: file.mimetype,
-          location: `${file.path}`, // URL для редактора
+          location: file.path.replace('var/www/uploads', 'web_docs'), // URL для редактора
         })),
       };
     }
