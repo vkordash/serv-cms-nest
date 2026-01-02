@@ -365,7 +365,7 @@ export class MenuService {
         try {
             // ✅ Получаем все активные элементы, у которых parent = id
             const query = `
-                UPDATE parent=$2
+                UPDATE
                     menu_new 
                 SET 
                     parent=$2,
