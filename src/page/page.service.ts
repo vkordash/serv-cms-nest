@@ -393,4 +393,32 @@ export class PageService {
             throw new InternalServerErrorException('❌ Помилка отримання списку відео фреймів (id=${id_menu})');
         }   
     }
+    
+    async delTitulPhoto(params: { id: number, id_pers:number }): Promise<PageDto> {
+        const { id, id_pers } = params;
+
+        if (!id || isNaN(Number(id))) {
+            throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
+        }
+
+        try {
+           const query = `
+                UPDATE pages_new
+                SET photo_src = null,
+                    photo_alt = null,
+                    photo_title = null,
+                    last_date = now(),
+                    last_user = $2
+                WHERE id = $1
+                `;
+            const { rows }  = await this.pool.query(query, [id, id_pers]);
+            console.log(query);
+            return rows[0]; 
+           
+
+        }  catch (error) {
+            this.logger.error(`❌ Ошибка при построении меню (id=${id}): ${error.message}`, error.stack);
+            throw new InternalServerErrorException('Ошибка при построении меню');
+        }   
+    }
 }

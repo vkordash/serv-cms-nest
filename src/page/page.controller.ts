@@ -110,19 +110,17 @@ export class PageController {
             return this.PageService.add(params);
     } 
     /************************************** ВІДЕО */
-/*
+
     @ApiOperation({summary: 'Отримати сторінку за запитом '})
     @ApiResponse({status:200, type: [PageDto] })
-    @Get('listvideos')
-        async getListVideo(@Query('id_menu') id_menu: number, @Query('offset') offset: number = 0, @Query('limit') limit: number = 12, @Query('search') search: string =  '') {
+    @Get('del-titul-photo')
+        async delTitulPhoto(@Query('id') id: number, @User() user: JwtPayload) {
             const params = {
-                id_menu:id_menu,
-                offset:offset,
-                limit: limit,
-                search: search
+                id:id,
+                id_pers: user.id_pers               
             };
             console.log(params);
-            return this.PageService.getListVideo(params);
-        } */
+            return this.PageService.delTitulPhoto(params);
+        } 
 }
 
