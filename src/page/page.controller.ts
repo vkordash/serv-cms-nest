@@ -113,6 +113,7 @@ export class PageController {
 
     @ApiOperation({summary: 'Отримати сторінку за запитом '})
     @ApiResponse({status:200, type: [PageDto] })
+    @UseGuards(JwtAuthGuard)  
     @Get('del-titul-photo')
         async delTitulPhoto(@Query('id') id: number, @User() user: JwtPayload) {
             const params = {
