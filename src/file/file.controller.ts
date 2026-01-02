@@ -21,7 +21,7 @@ export class FileController {
     @Post('upload')
     @ApiOperation({ summary: 'Upload file' })
     @ApiResponse({ status: 200, description: 'File uploaded' })
-
+    @UseGuards(JwtAuthGuard)
         @UseInterceptors(
           FileInterceptor('file', {
             storage: multerDiskStorage,
@@ -74,6 +74,7 @@ export class FileController {
     @Post('uploads')
     @ApiOperation({ summary: 'Upload files' })
     @ApiResponse({ status: 200, description: 'Files uploaded' })
+    @UseGuards(JwtAuthGuard)
     @UseInterceptors(
       FilesInterceptor('files', 10, {
         storage: multerDiskStorage,
@@ -86,13 +87,14 @@ export class FileController {
     async uploadFiles(
       @UploadedFiles() files: Express.Multer.File[],
       @Body() params: UploadFileDto,
+      @User() user: JwtPayload, 
     ) {
       if (!files || files.length === 0) {
         throw new BadRequestException('Файлы не загружены');
       }
 
       const { id, id_component } = params;
-
+      const id_pers = user.id_pers;
       console.log(files);
       return files;
       /*return {
