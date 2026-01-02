@@ -44,12 +44,9 @@ export class FileController {
           if (!file) {
             throw new BadRequestException('Файл не загружен');
           }
-          /*return {
-              originalName: file.originalname,
-              filename: file.filename,
-              path: file.path,
-              size: file.size,
-          };*/
+          
+          file.path = file.path.replace('var/www/uploads', 'web_docs');
+          
           console.log(id);
           console.log(id_component);
           console.log(file.path);
