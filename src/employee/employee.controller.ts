@@ -9,18 +9,18 @@ import type { JwtPayload } from 'src/auth/types/jwt-payload.type';
 
 @Controller('employee')
 export class EmployeeController {
-    constructor(private readonly AccessService: EmployeeService) {}
+    constructor(private readonly EmployeeService: EmployeeService) {}
     
     @ApiTags('Працівник')
     @ApiOperation({summary: 'Отримати працівника по ідентифікатору'})
     @ApiResponse({status:200, type: [EmployeeDto] })
     @UseGuards(JwtAuthGuard)  
     @Get('')
-        async getData(@Query('id') id: number) {
+        async getData(@User() user: JwtPayload) {
             const params = {
-                id:id 
+                id_pers:user.id_pers 
             };
-            return this.AccessService.getData(params);
+            return this.EmployeeService.getData(params);
         }  
     
     @ApiTags('Доступ для працівника')
@@ -32,6 +32,23 @@ export class EmployeeController {
             const params = {
                 id:id 
             };
-            return this.AccessService.getAccess(params);
-        }  
+            return this.EmployeeService.getAccess(params);
+        }
+    
+    @ApiOperation({summary: 'Отримати сторінку за запитом '})
+    @ApiResponse({status:200, type: [EmployeeDto] })
+    @UseGuards(JwtAuthGuard)  
+    @Get('upd')
+        async update(
+            @Query('name') name: string, 
+            @Query('val') val: string,
+            @User() user: JwtPayload
+        ) {
+            const params = {
+                id_pers: user.id_pers,
+                name:name,
+                val:val                 
+            };
+            return this.EmployeeService.update(params);
+        }
 }

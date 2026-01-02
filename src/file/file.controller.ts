@@ -34,12 +34,12 @@ export class FileController {
 
         uploadFile(
             @UploadedFile() file: Express.Multer.File,
-            @Body() params: UploadFileDto
+            @Body() params: UploadFileDto,
+            @User() user: JwtPayload,            
           ) {
           const id =params.id;
-         // const id_menu =params.id;
-         // const id_page =params.id;
           const id_component =params.id_component;
+          const id_pers = user.id_pers;
           console.log(params);
           if (!file) {
             throw new BadRequestException('Файл не загружен');
@@ -56,21 +56,21 @@ export class FileController {
           
           // Меню іконка
           if (id_component==0)
-            return this.FileService.setMenuIcon(id, file.path);
+            return this.FileService.setMenuIcon(id, file.path, id_pers);
 
           // Титульне фото
             if (id_component==2)
-            return this.FileService.setPhotoPage(id, file.path);
+            return this.FileService.setPhotoPage(id, file.path, id_pers);
               
           // Фото відеогалереї
           if (id_component==8)
-            return this.FileService.setPhotoCollection(id, file.path);
+            return this.FileService.setPhotoCollection(id, file.path, id_pers);
           
           if (id_component==10)
-                return this.FileService.setPhotoPage(id, file.path);
+                return this.FileService.setPhotoPage(id, file.path, id_pers);
 
           if (id_component==11)
-            return this.FileService.setPhotoPage(id, file.path);
+            return this.FileService.setPhotoPage(id, file.path, id_pers);
             
         }
         

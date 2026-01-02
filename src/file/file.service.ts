@@ -13,15 +13,19 @@ export class FileService {
     ) {}
 
 
-     async setMenuIcon(id: number, icon:string): Promise<any> {
+     async setMenuIcon(id: number, icon:string, id_pers: number): Promise<any> {
         try {
             const query = 
                 `UPDATE 
                     menu_new 
-                SET icon='${icon}' 
-                WHERE id=${id}`;
+                SET 
+                    icon='${icon}', 
+                    last_date = now(),
+                    last_user = $2
+                WHERE 
+                    id=${id}`;
 
-            const { res } = await this.pool.query(query);
+            const { res } = await this.pool.query(query,[id, icon, id_pers]);
             return res;                 
         } catch (error) {
             this.logger.error(`❌ Помилка отримання  : ${id}: ${error.message}`, error.stack);
@@ -29,7 +33,28 @@ export class FileService {
         }              
     }
 
-    async setPhotoPage(id: number, src:string): Promise<any> {
+    async setPhotoPage(id: number, src:string, id_pers: number): Promise<any> {
+
+        const id_org = this.configService.get<string>('ID_ORG') ?? null;
+
+        try {
+            const query = `
+                UPDATE pages_new
+                SET photo_src = $2,
+                    last_date = now(),
+                    last_user = $3
+                WHERE id = $1
+                RETURNING photo_src 
+                `;
+            const { rows }  = await this.pool.query(query, [id, src, id_pers]);
+            console.log(query);
+            return rows[0];                 
+        } catch (error) {
+            this.logger.error(`❌ Помилка отримання  : ${id}: ${error.message}`, error.stack);
+            throw new InternalServerErrorException(`Помилка отримання  : ${id}`);
+        }              
+    }
+    /*async setPhotoPage(id: number, src:string): Promise<any> {
 
         const id_org = this.configService.get<string>('ID_ORG') ?? null;
 
@@ -57,9 +82,9 @@ export class FileService {
             this.logger.error(`❌ Помилка отримання  : ${id}: ${error.message}`, error.stack);
             throw new InternalServerErrorException(`Помилка отримання  : ${id}`);
         }              
-    }
+    }*/
 
-    async setPhotoVideoCollection(id: number, icon:string): Promise<any> {
+    async setPhotoVideoCollection(id: number, icon:string, id_pers: number): Promise<any> {
         try {
             const query = 
                 `UPDATE 
@@ -75,7 +100,7 @@ export class FileService {
         }              
     }
 
-    async setPhotoSliderPage(id: number, icon:string): Promise<any> {
+    async setPhotoSliderPage(id: number, icon:string, id_pers: number): Promise<any> {
         try {
             const query = 
                 `UPDATE 
@@ -91,7 +116,7 @@ export class FileService {
         }              
     }
 
-    async setPhotoSliderBaner(id: number, icon:string): Promise<any> {
+    async setPhotoSliderBaner(id: number, icon:string, id_pers: number): Promise<any> {
        /* try {
             const query = 
                 `UPDATE 
@@ -107,7 +132,7 @@ export class FileService {
         }    */          
     }
 
-    async setPhotoCollection(id: number, src:string): Promise<any> {
+    async setPhotoCollection(id: number, src:string, id_pers: number): Promise<any> {
 
         const id_org = this.configService.get<string>('ID_ORG') ?? null;
 

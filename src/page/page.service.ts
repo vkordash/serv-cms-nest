@@ -288,7 +288,8 @@ export class PageService {
         try {
            
             const query = `
-                SELECT 
+                SELECT
+                    id, 
                     photo_src,
                     photo_alt,
                     photo_title,
