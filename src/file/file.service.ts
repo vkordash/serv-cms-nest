@@ -19,11 +19,11 @@ export class FileService {
                 `UPDATE 
                     menu_new 
                 SET 
-                    icon='${icon}', 
+                    icon=$2, 
                     last_date = now(),
-                    last_user = $2
+                    last_user = $3
                 WHERE 
-                    id=${id}`;
+                    id=$1`;
 
             const { res } = await this.pool.query(query,[id, icon, id_pers]);
             return res;                 
