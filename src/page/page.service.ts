@@ -94,7 +94,7 @@ export class PageService {
 
         try {
            
-            const query = `
+           /* const query = `
                 SELECT 
                     id,
                     head,
@@ -113,8 +113,28 @@ export class PageService {
                 WHERE id_menu=${id_menu} 
                 ORDER BY create_date DESC 
                 LIMIT ${limit} 
+                OFFSET ${offset}`;*/
+            const query = `
+                SELECT 
+                    id,
+                    head,
+                    title,
+                    date,
+                    text,
+                    v_len,
+                    activ,
+                    rss, 
+                    soc_nets, 
+                    top, 
+                    show_dt, 
+                    v_len,
+                    photo_src
+                FROM pages_new p 
+                WHERE id_menu=${id_menu} 
+                ORDER BY create_date DESC 
+                LIMIT ${limit} 
                 OFFSET ${offset}`;
-            
+
             console.log(query);
 
             const { rows } = await this.pool.query(query);
@@ -140,11 +160,11 @@ export class PageService {
                     row[key] = row[key] === 1;
                 }
     
-                if (row.photo) {
+                /*if (row.photo) {
                     if (siteUrl){
                         row.photo = siteUrl+row.photo.substr(2);
                     }                                        
-                }                 
+                } */                
             }
             return rows;
         }  catch (error) {

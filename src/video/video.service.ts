@@ -45,7 +45,7 @@ export class VideoService {
                         top, 
                         show_dt, 
                         v_len,
-                        (SELECT src FROM photos_new WHERE id_page=p.id ) as photo
+                        photo_src
                     FROM pages_new p 
                     WHERE id_menu=${id_menu} 
                     ORDER BY create_date DESC 
@@ -80,10 +80,10 @@ export class VideoService {
                         row[key] = row[key] === 1;
                     }
         
-                    if (row.photo) {
+                   /* if (row.photo) {
                         row.photo = getSrc(row.photo, SiteUrl);
                         
-                    }                         
+                    }  */                       
                 }
                 return rows;
             }  catch (error) {
