@@ -354,7 +354,7 @@ export class MenuService {
 
     async drop (params: { id: number, parent: number, id_pers: number }): Promise<any> {
         
-        const { id, id_pers } = params;
+        const { id, parent, id_pers } = params;
         
         if (!id || isNaN(Number(id))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -370,9 +370,9 @@ export class MenuService {
                 SET 
                     parent=$2,
                     last_date = now(),
-                    last_user = ${id_pers}                      
+                    last_user = $3                      
                 WHERE id=$1`;                 
-            const ret = await this.pool.query(query,[id,parent]);  
+            const ret = await this.pool.query(query,[id,parent, id_pers]);  
             return ret;
         } catch (error) {
             this.logger.error(`❌ Помилка переміщення меню (id=${id}): ${error.message}`, error.stack);
