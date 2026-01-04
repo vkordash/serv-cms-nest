@@ -34,8 +34,8 @@ export class PhotoService {
             const { rows } = await this.pool.query(query);
             return rows;
         }  catch (error) {
-            this.logger.error(`❌ Помилка отримання списку сторінок (id=${id_menu}): ${error.message}`, error.stack);
-            throw new InternalServerErrorException('❌ Помилка отримання списку сторінок (id=${id_menu})');
+            this.logger.error(`❌ Помилка отримання списку фотогалерей : ${error.message}`, error.stack);
+            throw new InternalServerErrorException('❌ Помилка отримання списку фотогалерей ');
         }   
     }
 
