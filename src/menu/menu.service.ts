@@ -339,7 +339,7 @@ export class MenuService {
                 UPDATE 
                     menu_new 
                 SET 
-                    parent=15, 
+                    parent=19, 
                     activ='f',
                     last_date = now(),
                     last_user = ${id_pers} 

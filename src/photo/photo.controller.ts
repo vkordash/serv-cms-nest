@@ -25,6 +25,17 @@ export class PhotoController {
             console.log(params);
             return this.PhotoService.getPage(params);
         } */
+    @ApiOperation({summary: 'Отримати сторінку за запитом '})
+    @ApiResponse({status:200, type: [PhotoDto] })
+    @UseGuards(JwtAuthGuard)  
+    @Get('')
+        async getListCollection(@Query('search') search: string =  '') {
+            const params = {
+                search: search
+            };
+            console.log(params);
+            return this.PhotoService.getListCollection(params);
+        } 
     
     @ApiOperation({summary: 'Отримати сторінку за запитом '})
     @ApiResponse({status:200, type: [PhotoDto] })

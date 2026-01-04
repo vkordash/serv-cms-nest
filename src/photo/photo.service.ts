@@ -17,6 +17,28 @@ export class PhotoService {
         private configService: ConfigService
     ) {}
 
+    async getListCollection(params: { search?:string }): Promise<PhotoDto> {
+        
+        const { search } = params;
+
+        try {
+           
+            const query = `
+                SELECT 
+                    id, name  
+                FROM menu 
+                WHERE
+                    parent=15
+                ORDER BY create_date DESC 
+               `;                        
+            const { rows } = await this.pool.query(query);
+            return rows;
+        }  catch (error) {
+            this.logger.error(`❌ Помилка отримання списку сторінок (id=${id_menu}): ${error.message}`, error.stack);
+            throw new InternalServerErrorException('❌ Помилка отримання списку сторінок (id=${id_menu})');
+        }   
+    }
+
     async getList(params: { id_menu: number, offset:number, limit:number, search?:string }): Promise<PhotoDto> {
         
         const { id_menu, offset, limit, search } = params;
