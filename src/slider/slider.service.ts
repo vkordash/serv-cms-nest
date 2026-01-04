@@ -32,16 +32,21 @@ export class SliderService {
             const query = `
                 SELECT 
                     id,
-                    head, 
-                    pn, 
-                    title, 
-                    link_frame, 
-                    date, 
-                    text, 
-                    activ 
-                FROM pages_new 
+                    head,
+                    title,
+                    date,
+                    text,
+                    v_len,
+                    activ,
+                    rss, 
+                    soc_nets, 
+                    top, 
+                    show_dt, 
+                    v_len,
+                    photo_src
+                FROM pages_new p 
                 WHERE id_menu=${id_menu} 
-                ORDER BY pn, create_date DESC 
+                ORDER BY create_date DESC 
                 LIMIT ${limit} 
                 OFFSET ${offset}
             `;
@@ -71,12 +76,12 @@ export class SliderService {
                     row[key] = row[key] === 1;
                 }
                 
-                row.photo='';
+                /*row.photo='';
                 const resPhoto = await this.pool.query(`SELECT * FROM photos_new WHERE id_page=$1 LIMIT 1`,[row.id]);
                 if (resPhoto.rowCount == 1) {
                     row.photo = resPhoto.rows[0];
                     row.photo.src = getSrc(row.photo.src, SiteUrl);                                                       
-                }                
+                } */               
             }
             return rows;                               
         } catch (error) {
