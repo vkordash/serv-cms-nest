@@ -25,7 +25,7 @@ export class PhotoService {
            
             const query = `
                 SELECT 
-                    id, name  
+                    id, name as photo_gallery_name  
                 FROM menu_new 
                 WHERE
                     parent=15
