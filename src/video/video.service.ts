@@ -21,7 +21,7 @@ export class VideoService {
             
             const { id_menu, offset, limit, search } = params;
     
-            const BOOL_FIELDS = ['activ', 'show_dt', 'rss', 'soc_nets', 'top'];
+            const BOOL_FIELDS = ['activ', 'show_dt', 'rss', 'soc_nets', 'sl_main','sl_news','sl_pages','sl_banners','new_window'];
             const SiteUrl = this.configService.get<string>('SITE_URL') ?? '';
     
             if (!id_menu || isNaN(Number(id_menu))) {
@@ -42,7 +42,11 @@ export class VideoService {
                         link_frame,
                         rss, 
                         soc_nets, 
-                        top, 
+                        sl_main, 
+                        sl_news,
+                        sl_pages,
+                        sl_banners,
+                        new_window, 
                         show_dt, 
                         v_len,
                         photo_src
@@ -186,7 +190,7 @@ export class VideoService {
                 throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
             }
             
-            const BOOLEAN_FIELDS = new Set(['activ', 'top', 'soc_nets', 'show_dt', 'rss']);
+            const BOOLEAN_FIELDS = new Set(['activ', 'show_dt', 'rss', 'soc_nets', 'sl_main','sl_news','sl_pages','sl_banners','new_window']);
             const TEXT_FIELDS = new Set(['head', 'text', 'title']);
             const NUMBER_FIELDS = new Set(['v_len']);
             const DATE_FIELDS = new Set(['date']);
