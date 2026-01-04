@@ -85,7 +85,7 @@ export class PageService {
         
         const { id_menu, offset, limit, search } = params;
 
-        const BOOL_FIELDS = ['activ', 'show_dt', 'rss', 'soc_nets', 'top'];
+        const BOOL_FIELDS = ['activ', 'show_dt', 'rss', 'soc_nets', 'sl_main','sl_news','sl_pages','sl_banners','new_window'];
         const siteUrl = this.configService.get<string>('SITE_URL') ?? '';
 
         if (!id_menu || isNaN(Number(id_menu))) {
@@ -125,7 +125,11 @@ export class PageService {
                     activ,
                     rss, 
                     soc_nets, 
-                    top, 
+                    sl_main, 
+                    sl_news,
+                    sl_pages,
+                    sl_banners,
+                    new_window,
                     show_dt, 
                     v_len,
                     photo_src
@@ -254,7 +258,7 @@ export class PageService {
             
             let _val: any;
 
-            const arrBoolean = ['activ', 'show_dt', 'top', 'soc_nets', 'rss' ];
+            const arrBoolean = ['activ', 'show_dt', 'rss', 'soc_nets', 'sl_main','sl_news','sl_pages','sl_banners','new_window'];
             const arrNumber = ['v_len', 'link_tag','pn' ];
             const arrDate = ['date'];
 
@@ -346,7 +350,8 @@ export class PageService {
         
         const { id_menu, offset, limit, search } = params;
 
-        const BOOL_FIELDS = ['activ', 'show_dt', 'rss', 'soc_nets', 'top'];
+        const BOOL_FIELDS = ['activ', 'show_dt', 'rss', 'soc_nets', 'sl_main','sl_news','sl_pages','sl_banners','new_window'];
+        
         const siteUrl = this.configService.get<string>('SITE_URL') ?? '';
 
         if (!id_menu || isNaN(Number(id_menu))) {
