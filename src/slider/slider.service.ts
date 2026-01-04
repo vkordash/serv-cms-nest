@@ -19,7 +19,8 @@ export class SliderService {
         
         const { id_menu, offset, limit, search } = params;
 
-        const BOOL_FIELDS = ['activ', 'show_dt', 'rss', 'soc_nets', 'top'];
+        const BOOL_FIELDS = ['activ', 'show_dt', 'rss', 'soc_nets', 'sl_main','sl_news','sl_pages','sl_banners','new_window'];
+        
         const SiteUrl = this.configService.get<string>('SITE_URL') ?? '';
         
         if (!id_menu || isNaN(Number(id_menu))) {
@@ -40,7 +41,11 @@ export class SliderService {
                     activ,
                     rss, 
                     soc_nets, 
-                    top, 
+                    sl_main, 
+                    sl_news,
+                    sl_pages,
+                    sl_banners,
+                    new_window, 
                     show_dt, 
                     v_len,
                     photo_src
@@ -160,12 +165,3 @@ export class SliderService {
         }
     }
 }
-
-
-
-/*
-const _res = await getPool(request.user.user.db).query(`select nextval('pages_new_id_seq')`);  
-            let id_page  = _res.rows[0].nextval;        
-            const res =  await getPool(request.user.user.db).query(`insert into pages_new (id,id_menu,text,id_org) values ($1,$2,$3,$4)`,[id_page, id_menu ,'Новий опис слайду', _Url.id_org]);    
-
-*/
