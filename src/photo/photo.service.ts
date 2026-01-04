@@ -26,7 +26,7 @@ export class PhotoService {
             const query = `
                 SELECT 
                     id, name  
-                FROM menu 
+                FROM menu_new 
                 WHERE
                     parent=15
                 ORDER BY create_date DESC 
