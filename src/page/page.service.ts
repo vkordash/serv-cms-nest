@@ -106,8 +106,7 @@ export class PageService {
                     *
                 FROM 
                     pages_new p
-                WHERE 
-                    activ=1 AND
+                WHERE
                     id_menu = $1 ${searchQuery}
                 ORDER BY 
                     create_date DESC
@@ -157,13 +156,13 @@ export class PageService {
         const { id_menu, search } = params;
 
         if (!id_menu || isNaN(Number(id_menu))) {
-            throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
+            throw new BadRequestException('Параметр "id_menu" обязателен и должен быть числом');
         }
 
         try {
            
             const hasSearch = !!(search && search.trim());
-            const searchQuery = hasSearch ? "AND to_tsvector('russian', text) @@ to_tsquery('russian', $4)" : '';
+            const searchQuery = hasSearch ? "AND to_tsvector('russian', text) @@ to_tsquery('russian', $2)" : '';
 
             const queryParams = hasSearch
                 ? [id_menu, search.trim()]
@@ -175,7 +174,6 @@ export class PageService {
                 FROM 
                     pages_new p
                 WHERE 
-                    activ=1 AND
                     id_menu = $1 ${searchQuery}
             `;
            
