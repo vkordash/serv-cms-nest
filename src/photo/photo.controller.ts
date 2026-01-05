@@ -71,7 +71,7 @@ export class PhotoController {
     @UseGuards(JwtAuthGuard)  
     @Get('upd')
         async update(
-            @Query('id') id_page: number,
+            @Query('id') id: number,
             @Query('name') name: string, 
             @Query('val') val: string,
             @User() user: JwtPayload,
