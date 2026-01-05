@@ -32,23 +32,7 @@ export class SliderService {
 
             const query = `
                 SELECT 
-                    id,
-                    head,
-                    title,
-                    date,
-                    text,
-                    v_len,
-                    activ,
-                    rss, 
-                    soc_nets, 
-                    sl_main, 
-                    sl_news,
-                    sl_pages,
-                    sl_banners,
-                    new_window, 
-                    show_dt, 
-                    v_len,
-                    photo_src
+                    *
                 FROM pages_new p 
                 WHERE id_menu=${id_menu} 
                 ORDER BY create_date DESC 
