@@ -94,54 +94,29 @@ export class PageService {
 
         try {
            
-           /* const query = `
-                SELECT 
-                    id,
-                    head,
-                    title,
-                    date,
-                    text,
-                    v_len,
-                    activ,
-                    rss, 
-                    soc_nets, 
-                    top, 
-                    show_dt, 
-                    v_len,
-                    (SELECT src FROM photos_new WHERE id_page=p.id ) as photo
-                FROM pages_new p 
-                WHERE id_menu=${id_menu} 
-                ORDER BY create_date DESC 
-                LIMIT ${limit} 
-                OFFSET ${offset}`;*/
+            const hasSearch = !!(search && search.trim());
+            const searchQuery = hasSearch ? "AND to_tsvector('russian', text) @@ to_tsquery('russian', $4)" : '';
+
+            const queryParams = hasSearch
+                ? [id_menu, limit, offset, search.trim()]
+                : [id_menu, limit, offset];
+                
             const query = `
                 SELECT 
-                    id,
-                    head,
-                    title,
-                    date,
-                    text,
-                    v_len,
-                    activ,
-                    rss, 
-                    soc_nets, 
-                    sl_main, 
-                    sl_news,
-                    sl_pages,
-                    sl_banners,
-                    new_window,
-                    show_dt, 
-                    v_len,
-                    photo_src
-                FROM pages_new p 
-                WHERE id_menu=${id_menu} 
-                ORDER BY create_date DESC 
-                LIMIT ${limit} 
-                OFFSET ${offset}`;
+                    *
+                FROM 
+                    pages_new p
+                WHERE 
+                    activ=1 AND
+                    id_menu = $1 ${searchQuery}
+                ORDER BY 
+                    create_date DESC
+                LIMIT
+                    $2 
+                OFFSET 
+                    $3`;
 
-            console.log(query);
-
-            const { rows } = await this.pool.query(query);
+            const { rows } = await this.pool.query(query, queryParams);
 
             for (const row of rows) {
                     
@@ -187,16 +162,24 @@ export class PageService {
 
         try {
            
+            const hasSearch = !!(search && search.trim());
+            const searchQuery = hasSearch ? "AND to_tsvector('russian', text) @@ to_tsquery('russian', $4)" : '';
+
+            const queryParams = hasSearch
+                ? [id_menu, search.trim()]
+                : [id_menu ];
+                
             const query = `
                 SELECT 
-                    count (*) as cnt
-                FROM pages_new p 
-                WHERE id_menu=${id_menu} 
-                `;
-            
-            console.log(query);
-
-            const { rows } = await this.pool.query(query);
+                     count (*) as cnt
+                FROM 
+                    pages_new p
+                WHERE 
+                    activ=1 AND
+                    id_menu = $1 ${searchQuery}
+            `;
+           
+            const { rows } = await this.pool.query(query, queryParams);
 
             return rows[0];
         }  catch (error) {
