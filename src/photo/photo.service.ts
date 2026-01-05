@@ -17,7 +17,7 @@ export class PhotoService {
         private configService: ConfigService
     ) {}
 
-    async getListCollection(params: { search?:string }): Promise<PhotoDto> {
+    async getListCollections(params: { search?:string }): Promise<PhotoDto> {
         
         const { search } = params;
 
@@ -43,7 +43,7 @@ export class PhotoService {
         
         const { id_menu, offset, limit, search } = params;
 
-        const BOOL_FIELDS = ['activ', 'show_dt', 'rss', 'soc_nets', 'top'];
+        const BOOL_FIELDS = ['activ', 'show_author'];
         const SiteUrl = this.configService.get<string>('SITE_URL') ?? '';
 
         if (!id_menu || isNaN(Number(id_menu))) {
@@ -63,11 +63,19 @@ export class PhotoService {
             
             console.log(query);
 
+            
             const { rows } = await this.pool.query(query);
 
             for (const row of rows) {
-                row.src = getSrc(row.src, SiteUrl);               
+                // --- 3. Преобразование числовых флагов в boolean ---
+                for (const key of BOOL_FIELDS) {
+                    row[key] = row[key] === 1;
+                }
+            /* for (const row of rows) {
+                    row.src = getSrc(row.src, SiteUrl);               
+                }*/
             }
+
             return rows;
         }  catch (error) {
             this.logger.error(`❌ Помилка отримання списку сторінок (id=${id_menu}): ${error.message}`, error.stack);
@@ -98,6 +106,53 @@ export class PhotoService {
         }   
     }
 
+    async update(params: { id: number, name: string, val:string, id_pers: number }){
+        
+        const { id, name, val, id_pers  } = params; 
+        
+        try {
+            
+           const arrBoolean = ['new_window', 'activ', 'show_author'];
+
+            let _val: any;
+
+            // Boolean параметры
+            if (arrBoolean.includes(name)) {
+                _val = val === 'true' ? 1 : 0;
+            }
+
+            // Число
+            else if (name === 'pn') {
+                _val = Number(val);
+
+                if (Number.isNaN(_val)) {
+                    throw new Error(`Parameter "${name}" must be a number`);
+                }
+            }
+
+            // Строка
+            else {
+                _val = val.toString();
+                if (_val.length == 0) _val = null;
+            }
+
+            // SQL — только параметизированный!
+            const query = `
+                UPDATE photos_new
+                SET ${name} = $1,
+                    last_date = NOW(),
+                    last_user = $2
+                WHERE id = $3
+                `;
+            console.log(query);
+            const res =  await this.pool.query(query, [_val, id_pers, id]);           
+            return res;                      
+        } catch (error) {
+            this.logger.error(`❌ Помилка update меню (id_page=${id}): ${error.message}`, error.stack);
+            throw new InternalServerErrorException(`Помилка update меню ${id}`);
+        }  
+    }
+    /*
     async update(params: { id_page: number, name: string, val:string, id_pers: number }){
         
         const { id_page, name, val, id_pers  } = params; 
@@ -129,7 +184,7 @@ export class PhotoService {
             }*/
 
             // SQL — только параметизированный!
-            const query = `
+         /*   const query = `
                 UPDATE photos_new
                 SET ${name} = $1,
                     last_date = NOW(),
@@ -143,5 +198,5 @@ export class PhotoService {
             this.logger.error(`❌ Помилка update меню (id_page=${id_page}): ${error.message}`, error.stack);
             throw new InternalServerErrorException(`Помилка update меню ${id_page}`);
         }  
-    }
+    }*/
 }

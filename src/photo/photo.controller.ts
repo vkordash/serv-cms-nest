@@ -34,7 +34,7 @@ export class PhotoController {
                 search: search
             };
             console.log(params);
-            return this.PhotoService.getListCollection(params);
+            return this.PhotoService.getListCollections(params);
         } 
     
     @ApiOperation({summary: 'Отримати сторінку за запитом '})
@@ -71,6 +71,25 @@ export class PhotoController {
     @UseGuards(JwtAuthGuard)  
     @Get('upd')
         async update(
+            @Query('id') id_page: number,
+            @Query('name') name: string, 
+            @Query('val') val: string,
+            @User() user: JwtPayload,
+        ) {
+            const params = {
+                id:id,
+                name:name,
+                val:val,
+                id_pers: user.id_pers 
+            };
+            return this.PhotoService.update(params);
+        }
+
+    /*@ApiOperation({summary: 'Отримати налаштування '})
+    @ApiResponse({status:200, type: [PhotoDto] })
+    @UseGuards(JwtAuthGuard)  
+    @Get('upd')
+        async update(
             @Query('id_page') id_page: number,
             @Query('name') name: string, 
             @Query('val') val: string,
@@ -83,11 +102,7 @@ export class PhotoController {
                 id_pers: user.id_pers 
             };
             return this.PhotoService.update(params);
-        }
+        }*/
+    
+    
 }
-
-
-//router.get("/update", PageController.updatePage); /* put */
-//router.get("/add", PageController.add);
-//router.get("/", PageController.getPage);
- 
