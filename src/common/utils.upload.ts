@@ -31,9 +31,9 @@ export function createUploadPath (id_org:number) {
     DOCS = '/var/www/docs'
   */
   
-  const UPLOADS = '/var/www/uploads';
-  const WEB_DOCS = '/var/www/web_docs';
-  const DOCS = '/var/www/docs';
+  const UPLOADS = '/var/www/uploads/'+String(id_org);
+  const WEB_DOCS = '/var/www/web_docs/'+String(id_org);
+  const DOCS = '/var/www/docs/'+String(id_org);
 
 
   const year = new Date().getFullYear();
