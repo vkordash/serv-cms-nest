@@ -12,12 +12,13 @@ export const multerDiskStorage = diskStorage({
       // 👇 payload из JWT
       //  @User() user: JwtPayload
       const User = req.user || undefined;
-     // console.log('User');
-      //console.log(User);
+      console.log('User');
+      console.log(User);
       if (!User) {
         return cb(new Error('User not authenticated'), '');
       }
       const uploadPath = createUploadPath(User.id_org);
+      console.log(uploadPath);
       cb(null, uploadPath);
     } catch (err) {
       cb(err, '');
