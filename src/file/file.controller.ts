@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Post, UploadedFile, UploadedFiles, UseInterceptors , BadRequestException, ConsoleLogger,Body } from '@nestjs/common';
+import { Controller, Get, Query, Req, Post, UploadedFile, UploadedFiles, UseInterceptors , BadRequestException, ConsoleLogger,Body } from '@nestjs/common';
 //import { Injectable } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
@@ -35,6 +35,7 @@ export class FileController {
         uploadFile(
             @UploadedFile() file: Express.Multer.File,
             @Body() params: UploadFileDto,
+            @Req() req: Request,
             @User() user: JwtPayload,            
           ) {
           const id =params.id;

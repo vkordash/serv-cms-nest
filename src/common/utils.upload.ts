@@ -23,7 +23,7 @@ export function transliterate(text: string): string {
 }
 
 
-export function createUploadPath () {
+export function createUploadPath (id_org:number) {
 
   /*
     UPLOADS = '/var/www/uploads'
