@@ -88,6 +88,7 @@ export class FileController {
     async uploadFiles(
       @UploadedFiles() files: Express.Multer.File[],
       @Body() params: UploadFileDto,
+      @Req() req: Request,
       @User() user: JwtPayload, 
     ) {
       if (!files || files.length === 0) {

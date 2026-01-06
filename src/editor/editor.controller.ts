@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UploadedFile, UploadedFiles, UseInterceptors , BadRequestException } from '@nestjs/common';
+import { Body, Controller, Get, Req, Post, Query, UploadedFile, UploadedFiles, UseInterceptors , BadRequestException } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { UseGuards } from '@nestjs/common';
@@ -69,6 +69,7 @@ export class EditorController {
         uploadEditor(
             @UploadedFile() file: Express.Multer.File,
             @Body() body: { pageId: string; menuId: string; pageTp: string },
+            @Req() req: Request,
             @User() user: JwtPayload
           ) {
           
@@ -112,6 +113,7 @@ export class EditorController {
     async uploadsEditor(
         @UploadedFiles() files: Express.Multer.File[],
         @Body() body: { pageId: string; menuId: string; pageTp: string },
+        @Req() req: Request,
         @User() user: JwtPayload
     ) {
       if (!files || files.length === 0) {
