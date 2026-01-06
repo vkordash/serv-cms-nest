@@ -22,9 +22,11 @@ export class ComponentController {
             return this.ComponentService.getData();
         }
     
+    @ApiOperation({summary: 'Отримати список компонентів '})
+    @ApiResponse({status:200, type: [ComponentDto] })
     @UseGuards(JwtAuthGuard)
-    @Get('getItem')
-        async del(
+    @Get('item')
+        async getItem(
             @Query('id') id: number,
             @User() user: JwtPayload
         ) {

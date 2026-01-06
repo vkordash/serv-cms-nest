@@ -46,7 +46,7 @@ export class ComponentService {
         try {
             const res = await this.pool.query(query,[id]);
 
-            if (res.rowCount) {
+            if (res.rowCount==1) {
                 return res.rows;            
             } 
             else {
