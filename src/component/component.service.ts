@@ -36,5 +36,28 @@ export class ComponentService {
             throw new InternalServerErrorException('Ошибка при получении данных из базы');
         }
     }
+
+    async getItem(params: { id: number}): Promise<ComponentDto[]> {    
+        
+        const query = `SELECT * FROM public.components where id=$1 limit 1`;
+        
+        const { id } = params;
+
+        try {
+            const res = await this.pool.query(query,[id]);
+
+            if (res.rowCount) {
+                return res.rows;            
+            } 
+            else {
+                this.logger.error('❌  Помилка. Відсутні записи !');
+                throw new InternalServerErrorException('❌ Помилка. Відсутні записи !');    
+            }  
+           
+        } catch (error) {
+            this.logger.error('❌ Ошибка при выполнении запроса к БД:', error.stack);
+            throw new InternalServerErrorException('Ошибка при получении данных из базы');
+        }
+    }
 }
 
