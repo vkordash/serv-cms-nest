@@ -1,9 +1,15 @@
 import { Inject, Injectable, Logger, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { SliderDto } from './dto/slider.dto';
 import striptags from 'striptags';
 import { getSrc } from 'src/common/src-img';
 import * as he from 'he';
 import { Pool } from 'pg';
+
+export interface SliderListResponse {
+  data: SliderDto[];
+  total: number;
+}
 
 @Injectable()
 export class SliderService {
@@ -15,7 +21,7 @@ export class SliderService {
         private configService: ConfigService
     ) {}
 
-    async getData(params: { id_menu: number, offset:number, limit:number, search?:string }): Promise<any[]> {
+    async getData(params: { id_menu: number, offset:number, limit:number, search?:string }): Promise<SliderListResponse> {
         
         const { id_menu, offset, limit, search } = params;
 
@@ -30,21 +36,43 @@ export class SliderService {
     
         try {
 
+            const hasSearch = !!(search && search.trim());
+            const searchQuery = hasSearch 
+                ? "AND to_tsvector('russian', p.text) @@ plainto_tsquery('russian', $4)" 
+                : '';
+
+            const queryParams = hasSearch
+                ? [id_menu, limit, offset, search.trim()]
+                : [id_menu, limit, offset];
+                
             const query = `
                 SELECT 
-                    *
-                FROM pages_new p 
-                WHERE id_menu=${id_menu} 
-                ORDER BY create_date DESC 
-                LIMIT ${limit} 
-                OFFSET ${offset}
-            `;
-                          
-            console.log(query);
+                    p.*,
+                    COUNT(*) OVER() AS total_count 
+                FROM 
+                    pages_new p
+                WHERE
+                    id_menu = $1 
+                    ${searchQuery}
+                ORDER BY 
+                    p.create_date DESC
+                LIMIT
+                    $2 
+                OFFSET 
+                    $3`;
+
+            const { rows } = await this.pool.query(query, queryParams);
+            const total = rows.length ? Number(rows[0].total_count) : 0;
+
+            if (rows.length === 0) {
+                return {
+                data: [],
+                total,
+                };
+            }
             
-            const { rows } = await this.pool.query(query);
-            
-            for (const row of rows) {
+            const data = rows.map(row => {
+                delete row.total_count;
             
                 if (row.title)
                     row.title = striptags(he.decode(row.title));
@@ -65,14 +93,13 @@ export class SliderService {
                     row[key] = row[key] === 1;
                 }
                 
-                /*row.photo='';
-                const resPhoto = await this.pool.query(`SELECT * FROM photos_new WHERE id_page=$1 LIMIT 1`,[row.id]);
-                if (resPhoto.rowCount == 1) {
-                    row.photo = resPhoto.rows[0];
-                    row.photo.src = getSrc(row.photo.src, SiteUrl);                                                       
-                } */               
-            }
-            return rows;                               
+                return row;
+            });              
+            
+            return {
+                data,
+                total
+            }                                     
         } catch (error) {
             this.logger.error(`❌ Помилка отримання данних слайдера id_menu=${id_menu}: ${error.message}`, error.stack);
             throw new InternalServerErrorException(`Помилка отримання данних слайдера id_menu:${id_menu} `);
