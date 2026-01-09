@@ -5,6 +5,11 @@ import { PageDto } from './dto/page.dto';
 import { Pool } from 'pg';
 import * as he from 'he';
 
+export interface PageListResponse {
+  data: PageDto[];
+  total: number;
+}
+
 @Injectable()
 export class PageService {
 
@@ -81,7 +86,7 @@ export class PageService {
         }   
     }
 
-    async getList(params: { id_menu: number, offset:number, limit:number, search?:string }): Promise<PageDto> {
+    async getList(params: { id_menu: number, offset:number, limit:number, search?:string }): Promise<PageListResponse> {
         
         const { id_menu, offset, limit, search } = params;
 
@@ -95,7 +100,9 @@ export class PageService {
         try {
            
             const hasSearch = !!(search && search.trim());
-            const searchQuery = hasSearch ? "AND to_tsvector('russian', text) @@ to_tsquery('russian', $4)" : '';
+            const searchQuery = hasSearch 
+                ? "AND to_tsvector('russian', p.text) @@ to_tsquery('russian', $4)" 
+                : '';
 
             const queryParams = hasSearch
                 ? [id_menu, limit, offset, search.trim()]
@@ -103,21 +110,25 @@ export class PageService {
                 
             const query = `
                 SELECT 
-                    *
+                    p.*,
+                    COUNT(*) OVER() AS total_count 
                 FROM 
                     pages_new p
                 WHERE
-                    id_menu = $1 ${searchQuery}
+                    id_menu = $1 
+                    ${searchQuery}
                 ORDER BY 
-                    create_date DESC
+                    p.create_date DESC
                 LIMIT
                     $2 
                 OFFSET 
                     $3`;
 
             const { rows } = await this.pool.query(query, queryParams);
+            const total = rows.length ? Number(rows[0].total_count) : 0;
 
-            for (const row of rows) {
+            const data = rows.map(row => {
+                delete row.total_count;
                     
                 if (row.title)
                     row.title = striptags(he.decode(row.title));
@@ -128,9 +139,9 @@ export class PageService {
                 if (row.text)
                     row.text = striptags(he.decode(row.text));
 
-                if (row.v_len > 0) {
-                    let p = row.text.indexOf(' ', row.v_len);            
-                    row.text = row.text.slice(0,p);
+                if (row.v_len > 0 && row.text) {
+                    const p = row.text.indexOf(' ', row.v_len);            
+                    if (p>0) row.text = row.text.slice(0,p);
                 }
                  
                 // --- 3. Преобразование числовых флагов в boolean ---
@@ -138,13 +149,13 @@ export class PageService {
                     row[key] = row[key] === 1;
                 }
     
-                /*if (row.photo) {
-                    if (siteUrl){
-                        row.photo = siteUrl+row.photo.substr(2);
-                    }                                        
-                } */                
-            }
-            return rows;
+               return row;
+            });              
+            
+            return {
+                data,
+                total
+            }            
         }  catch (error) {
             this.logger.error(`❌ Помилка отримання списку сторінок (id=${id_menu}): ${error.message}`, error.stack);
             throw new InternalServerErrorException('❌ Помилка отримання списку сторінок (id=${id_menu})');
@@ -162,7 +173,7 @@ export class PageService {
         try {
            
             const hasSearch = !!(search && search.trim());
-            const searchQuery = hasSearch ? "AND to_tsvector('russian', text) @@ to_tsquery('russian', $2)" : '';
+            const searchQuery = hasSearch ? "AND to_tsvector('russian', text) @@ plainto_tsquery('russian', $2)" : '';
 
             const queryParams = hasSearch
                 ? [id_menu, search.trim()]
