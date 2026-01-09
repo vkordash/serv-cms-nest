@@ -7,6 +7,12 @@ import { getSrc } from 'src/common/src-img';
 import { Pool } from 'pg';
 import * as he from 'he';
 
+export interface PhotoListResponse {
+  data: PhotoDto[];
+  total: number;
+}
+
+
 @Injectable()
 export class PhotoService {
 
@@ -39,7 +45,7 @@ export class PhotoService {
         }   
     }
 
-    async getList(params: { id_menu: number, offset:number, limit:number, search?:string }): Promise<PhotoDto> {
+    async getList(params: { id_menu: number, offset:number, limit:number, search?:string }): Promise<PhotoListResponse> {
         
         const { id_menu, offset, limit, search } = params;
 
@@ -52,31 +58,55 @@ export class PhotoService {
 
         try {
            
+            const hasSearch = !!(search && search.trim());
+            const searchQuery = hasSearch 
+                ? "AND to_tsvector('russian', p.title) @@ plainto_tsquery('russian', $4)" 
+                : '';
+
+            const queryParams = hasSearch
+                ? [id_menu, limit, offset, search.trim()]
+                : [id_menu, limit, offset];
+                
             const query = `
                 SELECT 
-                    * 
-                FROM photos_new 
-                WHERE id_menu=${id_menu} 
-                ORDER BY create_date DESC 
-                LIMIT ${limit} 
-                OFFSET ${offset}`;
-            
-            console.log(query);
+                    p.*,
+                    COUNT(*) OVER() AS total_count 
+                FROM 
+                    photos_new p
+                WHERE
+                    id_menu = $1 
+                    ${searchQuery}
+                ORDER BY 
+                    p.create_date DESC
+                LIMIT
+                    $2 
+                OFFSET 
+                    $3`;
 
-            
-            const { rows } = await this.pool.query(query);
+            const { rows } = await this.pool.query(query, queryParams);
+            const total = rows.length ? Number(rows[0].total_count) : 0;
 
-            for (const row of rows) {
+            if (rows.length === 0) {
+                return {
+                data: [],
+                total,
+                };
+            }
+            
+            const data = rows.map(row => {
+                delete row.total_count;
                 // --- 3. Преобразование числовых флагов в boolean ---
                 for (const key of BOOL_FIELDS) {
                     row[key] = row[key] === 1;
                 }
-            /* for (const row of rows) {
-                    row.src = getSrc(row.src, SiteUrl);               
-                }*/
-            }
 
-            return rows;
+                return row; 
+            });
+
+             return {
+                data,
+                total
+            }  
         }  catch (error) {
             this.logger.error(`❌ Помилка отримання списку сторінок (id=${id_menu}): ${error.message}`, error.stack);
             throw new InternalServerErrorException('❌ Помилка отримання списку сторінок (id=${id_menu})');

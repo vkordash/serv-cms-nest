@@ -49,7 +49,7 @@ export class PageController {
             return this.PageService.getList(params);
         } 
     
-    @ApiOperation({summary: 'Отримати сторінку за запитом '})
+    /*@ApiOperation({summary: 'Отримати сторінку за запитом '})
     @ApiResponse({status:200, type: [PageDto] })
     @UseGuards(JwtAuthGuard)  
     @Get('cnt')
@@ -60,7 +60,7 @@ export class PageController {
             };
             console.log(params);
             return this.PageService.getCnt(params);
-        } 
+        } */
     
     @ApiOperation({summary: 'Отримати сторінку за запитом '})
     @ApiResponse({status:200, type: [PageDto] })
