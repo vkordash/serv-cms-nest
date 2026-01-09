@@ -38,7 +38,7 @@ export class SliderService {
 
             const hasSearch = !!(search && search.trim());
             const searchQuery = hasSearch 
-                ? "AND to_tsvector('russian', p.text) @@ plainto_tsquery('russian', $4)" 
+                ? "AND to_tsvector('russian', p.head) @@ plainto_tsquery('russian', $4)" 
                 : '';
 
             const queryParams = hasSearch
