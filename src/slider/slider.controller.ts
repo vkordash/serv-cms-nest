@@ -16,11 +16,12 @@ export class SliderController {
     @ApiResponse({status:200, type: [SliderDto] })
     @UseGuards(JwtAuthGuard)  
     @Get('')
-        async getData(@Query('id_menu') id_menu: number, @Query('offset') offset: number = 0, @Query('limit') limit: number = 12) {
+        async getData(@Query('id_menu') id_menu: number, @Query('offset') offset: number = 0, @Query('limit') limit: number = 12, @Query('search') search: string =  '') {
              const params = {
                 id_menu:id_menu,
                 offset:offset,
-                limit: limit
+                limit: limit,
+                search: search
             };
             console.log(params);
             return this.SliderService.getData(params);
