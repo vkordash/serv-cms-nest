@@ -54,6 +54,40 @@ export class FileService {
             throw new InternalServerErrorException(`Помилка отримання  : ${id}`);
         }              
     }
+
+    async uploadPhoto(id: number, src:string, id_pers: number): Promise<any> {
+
+        try {
+            const id_org = this.configService.get<string>('ID_ORG') ?? null;
+
+            const query = `
+                INSERT INTO 
+                    public.photos_new (
+                        id, 
+                        id_menu, 
+                        photo_src,
+                        create_user,
+                        last_user,
+                        id_org
+                    )
+	            VALUES (
+                    nextval('pages_new_id_seq'), 
+                    $1, 
+                    $2, 
+                    $3, 
+                    $4, 
+                    $5); 
+                `;
+            const { rows }  = await this.pool.query(query, [id, src, id_pers, id_pers, id_org]);
+            return rows;                 
+        } catch (error) {
+            this.logger.error(`❌ Помилка отримання  : ${id}: ${error.message}`, error.stack);
+            throw new InternalServerErrorException(`Помилка отримання  : ${id}`);
+        }              
+    }
+
+
+
     /*async setPhotoPage(id: number, src:string): Promise<any> {
 
         const id_org = this.configService.get<string>('ID_ORG') ?? null;

@@ -63,6 +63,10 @@ export class FileController {
           // Фото відеогалереї
           if (id_component==8)
             return this.FileService.setPhotoCollection(id, file.path, id_pers);
+
+          // Фото галерея
+          if (id_component==9)
+            return this.FileService.uploadPhoto(id, file.path, id_pers);
           
           if (id_component==10)
                 return this.FileService.setPhotoPage(id, file.path, id_pers);
