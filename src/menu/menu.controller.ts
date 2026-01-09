@@ -23,9 +23,9 @@ export class MenuController {
         ){
             const params = {
                 id:id,
-                id_pers: user.id_pers           
+                id_pers: user.id_pers,
+                db: user.db               
             };
-            console.log(params);
             return this.MenuService.getMenuById(params);
         }  
     
@@ -44,9 +44,9 @@ export class MenuController {
                 id:id,
                 name:name,
                 val:val,
-                id_pers:user.id_pers            
+                id_pers:user.id_pers,
+                db: user.db                
             };
-            console.log(params);
             return this.MenuService.update(params);
         }
 
@@ -54,9 +54,13 @@ export class MenuController {
     @ApiResponse({status:200, type: [MenuDto] })
     @UseGuards(JwtAuthGuard)
     @Get('getMenu')
-        async getMenu(@Query('id') id: number) {
+        async getMenu(
+            @Query('id') id: number,
+            @User() user: JwtPayload,
+        ) {
         const params = {
-            id:id 
+            id:id,
+            db: user.db     
         };
         return this.MenuService.getMenu(params);
         }  
@@ -65,9 +69,13 @@ export class MenuController {
     @ApiResponse({status:200, type: [MenuDto] })
     @UseGuards(JwtAuthGuard)
     @Get('getMenuItem')
-        async getMenuItem(@Query('id') id: number) {
+        async getMenuItem(
+            @Query('id') id: number,
+            @User() user: JwtPayload
+        ) {
         const params = {
-            id:id 
+            id:id,
+            db: user.db     
         };
         return this.MenuService.getMenuItem(params);
         }  
@@ -76,9 +84,13 @@ export class MenuController {
     @ApiResponse({status:200, type: [MenuDto] })
     @UseGuards(JwtAuthGuard)
     @Get('getSubMenu')
-        async getSubMenu(@Query('id') id: number) {
+        async getSubMenu(
+            @Query('id') id: number,
+            @User() user: JwtPayload
+        ) {
         const params = {
-            id:id 
+            id:id,
+            db: user.db     
         };
         return this.MenuService.getSubMenu(params);
         } 
@@ -87,9 +99,13 @@ export class MenuController {
     @ApiResponse({status:200, type: [MenuDto] })
     @UseGuards(JwtAuthGuard)
     @Get('getTreeItem')
-        async getTreeItem(@Query('id') id: number) {
+        async getTreeItem(
+            @Query('id') id: number,
+            @User() user: JwtPayload
+        ) {
         const params = {
-            id:id 
+            id:id,
+            db: user.db     
         };
         return this.MenuService.getTreeItem(params);
         }  
@@ -104,7 +120,8 @@ export class MenuController {
         ) {
             const params = {
                 id:id,
-                id_pers: user.id_pers    
+                id_pers: user.id_pers,
+                db: user.db    
             };
             return this.MenuService.del(params);
         } 
@@ -118,7 +135,9 @@ export class MenuController {
             @User() user: JwtPayload) {
                 const params = {
                     id:id,
-                    id_pers: user.id_pers     
+                    id_pers: user.id_pers,
+                    id_org: user.id_org,
+                    db: user.db     
                 };
             return this.MenuService.add(params);
         }  
@@ -135,28 +154,10 @@ export class MenuController {
             const params = {
                 id:id,
                 parent:parent,
-                id_pers: user.id_pers 
+                id_pers: user.id_pers,
+                db: user.db 
             };
             return this.MenuService.drop(params);
         }  
     
 }
-
-
-/*
-
-router.get("/getMenu", MenuControllers.getMenu);
-router.get("/delete", MenuControllers.deleteMenuItem);
-router.get("/getMenuItem", MenuControllers.getMenuItem);
-router.get("/getTreeItem", MenuControllers.getTreeItem);
-router.get("/", MenuControllers.getMenuByid);
-router.get("/getSubMenu", MenuControllers.getSubMenu);
-router.get("/getTabsMenu", MenuControllers.getTabsMenu);
-router.get("/getAccordionMenu", MenuControllers.getAccordionMenu);
-router.get("/add", MenuControllers.add);
-router.get("/update", MenuControllers.update);
-router.get("/drop", MenuControllers.drop);
-router.get("/getNodeExpand", MenuControllers.getNodeExpand);
-
-*/
-

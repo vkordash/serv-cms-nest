@@ -49,7 +49,8 @@ export class SliderController {
         ) {
              const params = {
                 id_menu:id_menu,
-                id_pers: user.id_pers               
+                id_pers: user.id_pers,
+                id_org: user.id_org
             };
             console.log(params);
             return this.SliderService.add(params);

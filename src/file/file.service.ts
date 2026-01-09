@@ -35,7 +35,7 @@ export class FileService {
 
     async setPhotoPage(id: number, src:string, id_pers: number): Promise<any> {
 
-        const id_org = this.configService.get<string>('ID_ORG') ?? null;
+        //const id_org = this.configService.get<string>('ID_ORG') ?? null;
 
         try {
             const query = `
@@ -55,10 +55,10 @@ export class FileService {
         }              
     }
 
-    async uploadPhoto(id: number, src:string, id_pers: number): Promise<any> {
+    async uploadPhoto(id: number, src:string, id_pers: number, id_org: number): Promise<any> {
 
         try {
-            const id_org = this.configService.get<string>('ID_ORG') ?? null;
+            //const id_org = this.configService.get<string>('ID_ORG') ?? null;
 
             const query = `
                 INSERT INTO 
@@ -166,9 +166,9 @@ export class FileService {
         }    */          
     }
 
-    async setPhotoCollection(id: number, src:string, id_pers: number): Promise<any> {
+    async setPhotoCollection(id: number, src:string, id_pers: number, id_org: number): Promise<any> {
 
-        const id_org = this.configService.get<string>('ID_ORG') ?? null;
+        //const id_org = this.configService.get<string>('ID_ORG') ?? null;
 
         try {
 

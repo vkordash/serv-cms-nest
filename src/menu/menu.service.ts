@@ -17,8 +17,8 @@ export class MenuService {
         private configService: ConfigService
     ) {}
 
-    async getMenu(params: { id: number }): Promise<MenuItemDto[]> {
-        const { id } = params;
+    async getMenu(params: { id: number, db:string }): Promise<MenuItemDto[]> {
+        const { id, db } = params;
 
         if (!id || isNaN(Number(id))) {
         throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -53,7 +53,7 @@ export class MenuService {
                 
                 const SiteUrl = this.configService.get<string>('SITE_URL') ?? '';
 
-                const children = await this.getMenu({ id: row.key }); // 🔁 рекурсивный вызов                
+                const children = await this.getMenu({ id: row.key, db: db }); // 🔁 рекурсивный вызов                
 
                 return {
                     key: row.key,
@@ -73,9 +73,9 @@ export class MenuService {
         }
     }
 
-    async update(params: { id: number, name: string, val:string, id_pers: number }){
+    async update(params: { id: number, name: string, val:string, id_pers: number, db:string }){
         
-        const { id, name, val, id_pers  } = params; 
+        const { id, name, val, id_pers, db  } = params; 
         
         try {
             
@@ -119,9 +119,11 @@ export class MenuService {
         }  
     }
 
-    async getMenuItem(params: { id: number }): Promise<MenuItemDto> {
-        const { id } = params;
+    async getMenuItem(params: { id: number, db:string }): Promise<MenuItemDto> {
+        const { id, db } = params;
 
+        console.log('getMenuItem');
+        console.log(params);
         if (!id || isNaN(Number(id))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
         }
@@ -143,11 +145,13 @@ export class MenuService {
         }
     }
 
-    async getMenuById(params: { id: number }): Promise<MenuItemDto> {
+    async getMenuById(params: { id: number, db:string }): Promise<MenuItemDto> {
         
-        const { id } = params;
+        const { id, db } = params;
         
-        const SiteUrl = this.configService.get<string>('SITE_URL') ?? '';
+        console.log('getMenuById');
+        console.log(params);
+        //const SiteUrl = this.configService.get<string>('SITE_URL') ?? '';
         
         if (!id || isNaN(Number(id))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -182,8 +186,8 @@ export class MenuService {
                 LIMIT 1`;            
             const { rows } = await this.pool.query(query);
             //console.log(rows);
-            if (rows[0].icon) 
-                rows[0].icon = getSrc(rows[0].icon, SiteUrl);
+            //if (rows[0].icon) 
+            //    rows[0].icon = getSrc(rows[0].icon, SiteUrl);
             //console.log(rows);
             return rows;
         } catch (error) {
@@ -192,9 +196,9 @@ export class MenuService {
         }
     }
 
-    async getSubMenu (params: { id: number }): Promise<MenuItemDto> {
+    async getSubMenu (params: { id: number, db:string }): Promise<MenuItemDto> {
         
-        const { id } = params;
+        const { id, db } = params;
         const siteUrl = this.configService.get<string>('SITE_URL') ?? '';
 
         if (!id || isNaN(Number(id))) {
@@ -254,9 +258,9 @@ export class MenuService {
         }
     }
 
-    async getTreeItem (params: { id: number }): Promise<any> {
+    async getTreeItem (params: { id: number, db:string }): Promise<any> {
         
-        const { id } = params;
+        const { id, db } = params;
         const siteUrl = this.configService.get<string>('SITE_URL') ?? '';
 
         if (!id || isNaN(Number(id))) {
@@ -277,7 +281,7 @@ export class MenuService {
                 FROM menu_new 
                 WHERE id = ${id}`;
             const { rows } = await this.pool.query(query);
-            rows[0].children = await this.getMenu({ id: rows[0].key }); // 🔁 рекурсивный вызов                
+            rows[0].children = await this.getMenu({ id: rows[0].key, db: db }); // 🔁 рекурсивный вызов                
             return rows[0];
         } catch (error) {
             this.logger.error(`❌ Ошибка получения меню (id=${id}): ${error.message}`, error.stack);
@@ -285,10 +289,10 @@ export class MenuService {
         }
     }
     
-    async add (params: { id: number, id_pers: number }): Promise<any> {
+    async add (params: { id: number, id_pers: number, id_org: number, db:string }): Promise<any> {
         
-        const { id, id_pers } = params;
-        const id_org = Number(this.configService.get<string>('ID_ORG')) ?? 0;
+        const { id, id_pers, id_org, db } = params;
+        //const id_org = Number(this.configService.get<string>('ID_ORG')) ?? 0;
 
         if (!id || isNaN(Number(id))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -325,9 +329,9 @@ export class MenuService {
         }
     }
 
-    async del (params: { id: number, id_pers: number }): Promise<any> {
+    async del (params: { id: number, id_pers: number, db:string }): Promise<any> {
         
-        const { id, id_pers } = params;
+        const { id, id_pers, db } = params;
         
         if (!id || isNaN(Number(id))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -352,9 +356,9 @@ export class MenuService {
         }
     }
 
-    async drop (params: { id: number, parent: number, id_pers: number }): Promise<any> {
+    async drop (params: { id: number, parent: number, id_pers: number, db:string }): Promise<any> {
         
-        const { id, parent, id_pers } = params;
+        const { id, parent, id_pers, db } = params;
         
         if (!id || isNaN(Number(id))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');

@@ -91,7 +91,7 @@ export class PageService {
         const { id_menu, offset, limit, search } = params;
 
         const BOOL_FIELDS = ['activ', 'show_dt', 'rss', 'soc_nets', 'sl_main','sl_news','sl_pages','sl_banners','new_window'];
-        const siteUrl = this.configService.get<string>('SITE_URL') ?? '';
+        //const siteUrl = this.configService.get<string>('SITE_URL') ?? '';
 
         if (!id_menu || isNaN(Number(id_menu))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -204,12 +204,10 @@ export class PageService {
         }   
     }
 
-    async add(params: { id_menu: number, id_pers: number }): Promise<any> {
+    async add(params: { id_menu: number, id_pers: number, id_org: number }): Promise<any> {
         
-        const { id_menu, id_pers } = params;
+        const { id_menu, id_pers, id_org } = params;
         
-        const id_org = Number(this.configService.get<string>('ID_ORG')) ?? 0;
-
         if (!id_menu || isNaN(Number(id_menu))) {
             throw new BadRequestException('Параметр "id_menu" обязателен и должен быть числом');
         }

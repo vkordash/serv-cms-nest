@@ -53,7 +53,7 @@ export class EditorService {
         //console.log(params.text);
         // const res =await getPool(db).query("UPDATE pages_new set text=$1 where id=$2",[text,id]);  
         //console.log(res);      
-        const { id_page, text, id_pers, id_menu, tp_page} = params;
+        const { id_page, text, id_pers, id_menu, tp_page, id_org} = params;
 
         if (!id_page || isNaN(Number(id_page))) {
             throw new BadRequestException('Параметр "pageId" обязателен и должен быть числом');
@@ -61,7 +61,7 @@ export class EditorService {
 
         try {
             
-            const id_org = Number(this.configService.get<string>('ID_ORG')) ?? 0;
+            //const id_org = Number(this.configService.get<string>('ID_ORG')) ?? 0;
 
             const query = (id_page==0) ? 
                 `
@@ -101,9 +101,6 @@ export class EditorService {
                 [id_menu, text, id_pers, id_pers, id_org]
                 : [id_page,text,id_pers]; 
             
-            console.log(id_org);
-            console.log(query);
-            console.log(_arg);
             const { rows } = await this.pool.query(query,_arg);
             
             if (id_page==0) {

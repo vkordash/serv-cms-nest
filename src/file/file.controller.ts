@@ -41,6 +41,7 @@ export class FileController {
           const id =params.id;
           const id_component =params.id_component;
           const id_pers = user.id_pers;
+          const id_org = user.id_org;
           console.log(params);
           if (!file) {
             throw new BadRequestException('Файл не загружен');
@@ -62,11 +63,11 @@ export class FileController {
               
           // Фото відеогалереї
           if (id_component==8)
-            return this.FileService.setPhotoCollection(id, file.path, id_pers);
+            return this.FileService.setPhotoCollection(id, file.path, id_pers, id_org);
 
           // Фото галерея
           if (id_component==9)
-            return this.FileService.uploadPhoto(id, file.path, id_pers);
+            return this.FileService.uploadPhoto(id, file.path, id_pers, id_org);
           
           if (id_component==10)
                 return this.FileService.setPhotoPage(id, file.path, id_pers);

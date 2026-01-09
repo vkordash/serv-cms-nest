@@ -31,7 +31,8 @@ export class EditorController {
                 id_page: params.pageId,
                 id_pers: user.id_pers,
                 id_menu: params.menuId,
-                tp_page: params.pageTp
+                tp_page: params.pageTp,
+                id_org : user.id_org
             };
             console.log(data);
             return this.EditorService.save(data);
