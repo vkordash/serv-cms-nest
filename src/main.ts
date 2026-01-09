@@ -33,7 +33,7 @@ async function bootstrap() {
               'http://10.8.0.1',
           ];
 
-          console.log('cors '+origin);
+         // console.log('cors '+origin);
           // Если нет origin (например Postman) — разрешаем
             if (!origin) {
               return callback(null, true);
