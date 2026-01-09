@@ -101,7 +101,7 @@ export class PageService {
            
             const hasSearch = !!(search && search.trim());
             const searchQuery = hasSearch 
-                ? "AND to_tsvector('russian', p.text) @@ to_tsquery('russian', $4)" 
+                ? "AND to_tsvector('russian', p.text) @@ plainto_tsquery('russian', $4)" 
                 : '';
 
             const queryParams = hasSearch
@@ -133,7 +133,7 @@ export class PageService {
                 total,
                 };
             }
-            
+
             const data = rows.map(row => {
                 delete row.total_count;
                     
