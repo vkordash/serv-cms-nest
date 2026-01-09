@@ -127,6 +127,13 @@ export class PageService {
             const { rows } = await this.pool.query(query, queryParams);
             const total = rows.length ? Number(rows[0].total_count) : 0;
 
+            if (rows.length === 0) {
+                return {
+                data: [],
+                total,
+                };
+            }
+            
             const data = rows.map(row => {
                 delete row.total_count;
                     

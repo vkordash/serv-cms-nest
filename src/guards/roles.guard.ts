@@ -20,5 +20,5 @@ export class RolesGuard implements CanActivate {
     return user?.roles?.some(role =>
       requiredRoles.includes(role),
     );
-  }
+  } 
 }
