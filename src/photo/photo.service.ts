@@ -60,7 +60,7 @@ export class PhotoService {
            
             const hasSearch = !!(search && search.trim());
             const searchQuery = hasSearch 
-                ? "AND to_tsvector('russian', p.title) @@ plainto_tsquery('russian', $4)" 
+                ? "AND to_tsvector('russian', p.photo_title) @@ plainto_tsquery('russian', $4)" 
                 : '';
 
             const queryParams = hasSearch
