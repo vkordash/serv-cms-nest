@@ -16,9 +16,12 @@ export class UserController {
         @ApiResponse({status:200, type: [UserDto] })
         @UseGuards(JwtAuthGuard)  
         @Get('')
-            async getData(@User() user: JwtPayload) {
+            async getData(
+                @User() user: JwtPayload
+            ) {
                 const params = {
-                    id_pers:user.id_pers 
+                    id_pers:user.id_pers,
+                    db: user.db
                 };
                 return this.UserService.getData(params);
             }  

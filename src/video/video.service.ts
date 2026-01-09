@@ -21,9 +21,9 @@ export class VideoService {
         private configService: ConfigService
     ) {}
     
-    async getList(params: { id_menu: number, offset:number, limit:number, search?:string }): Promise<VideoListResponse> {
+    async getList(params: { id_menu: number, offset:number, limit:number, search?:string, db: string }): Promise<VideoListResponse> {
             
-            const { id_menu, offset, limit, search } = params;
+            const { id_menu, offset, limit, search, db } = params;
     
             const BOOL_FIELDS = ['activ', 'show_dt', 'rss', 'soc_nets', 'sl_main','sl_news','sl_pages','sl_banners','new_window'];
             //const SiteUrl = this.configService.get<string>('SITE_URL') ?? '';
@@ -108,9 +108,9 @@ export class VideoService {
             }   
         }
     
-        async getCnt(params: { id_menu: number, search?:string }): Promise<Number> {
+        async getCnt(params: { id_menu: number, search?:string, db: string }): Promise<Number> {
             
-            const { id_menu, search } = params;
+            const { id_menu, search, db } = params;
     
             if (!id_menu || isNaN(Number(id_menu))) {
                 throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -131,9 +131,9 @@ export class VideoService {
             }   
         }
 
-        async add(params: { id_menu: number, id_pers: number, id_org: number}): Promise<any> {
+        async add(params: { id_menu: number, id_pers: number, id_org: number, db: string}): Promise<any> {
             
-            const { id_menu, id_pers, id_org } = params;
+            const { id_menu, id_pers, id_org, db } = params;
             
             //const id_org = Number(this.configService.get<string>('ID_ORG')) ?? 0;
 
@@ -171,7 +171,7 @@ export class VideoService {
             }  
         }
 
-        async delete(params: { id: number, id_pers : number }): Promise<any> {
+        async delete(params: { id: number, id_pers : number, db: string }): Promise<any> {
             
           /*  const { id_menu, search } = params;
     
@@ -194,9 +194,9 @@ export class VideoService {
             }   */
         }
 
-        async update(params: { id: number, name:string, val:string, id_pers: number }): Promise<any> {
+        async update(params: { id: number, name:string, val:string, id_pers: number, db: string }): Promise<any> {
             
-            const { id, name, val, id_pers } = params;
+            const { id, name, val, id_pers, db } = params;
                 
             if (!id || isNaN(Number(id))) {
                 throw new BadRequestException('Параметр "id" обязателен и должен быть числом');

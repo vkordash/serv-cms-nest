@@ -14,7 +14,7 @@ export class PreferService {
         private configService: ConfigService
     ) {}
 
-    async getDataOrg(params: { name: string }): Promise<any> {
+    async getDataOrg(params: { name: string, db: string }): Promise<any> {
 
         const { name } = params;
 
@@ -39,7 +39,7 @@ export class PreferService {
             val:string 
         }): Promise<any> {
 
-        const { id_pers,db, id_org, name, val } = params;
+        const { id_pers,db, id_org, name, val} = params;
         
         try {
             
@@ -136,9 +136,9 @@ export class PreferService {
         }              
     }
 
-    async getUserPref(params: {id_pers: number, name?: string }): Promise<any> {
+    async getUserPref(params: {id_pers: number, name?: string, db: string }): Promise<any> {
 
-        const { id_pers, name } = params;
+        const { id_pers, name, db } = params;
         
         try {
             
@@ -179,7 +179,7 @@ export class PreferService {
             db : string,
             id_org : number,
             name: string, 
-            val:string 
+            val:string            
         }): Promise<any> {
 
         const { id_pers, db, id_org, name, val } = params;

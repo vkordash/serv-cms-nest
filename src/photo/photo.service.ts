@@ -23,9 +23,9 @@ export class PhotoService {
         private configService: ConfigService
     ) {}
 
-    async getListCollections(params: { search?:string }): Promise<PhotoDto> {
+    async getListCollections(params: {search:string, db: string }): Promise<PhotoDto> {
         
-        const { search } = params;
+        const { search, db } = params;
 
         try {
            
@@ -45,9 +45,9 @@ export class PhotoService {
         }   
     }
 
-    async getList(params: { id_menu: number, offset:number, limit:number, search?:string }): Promise<PhotoListResponse> {
+    async getList(params: { id_menu: number, offset:number, limit:number, search:string, db: string }): Promise<PhotoListResponse> {
         
-        const { id_menu, offset, limit, search } = params;
+        const { id_menu, offset, limit, search, db } = params;
 
         const BOOL_FIELDS = ['activ', 'show_author'];
         const SiteUrl = this.configService.get<string>('SITE_URL') ?? '';
@@ -113,9 +113,9 @@ export class PhotoService {
         }   
     }
 
-    async getCnt(params: { id_menu: number, search?:string }): Promise<Number> {
+    async getCnt(params: { id_menu: number, search?:string, db: string }): Promise<Number> {
         
-        const { id_menu, search } = params;
+        const { id_menu, search, db } = params;
 
         if (!id_menu || isNaN(Number(id_menu))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -136,9 +136,9 @@ export class PhotoService {
         }   
     }
 
-    async update(params: { id: number, name: string, val:string, id_pers: number }){
+    async update(params: { id: number, name: string, val:string, id_pers: number, db: string }){
         
-        const { id, name, val, id_pers  } = params; 
+        const { id, name, val, id_pers, db } = params; 
         
         try {
             

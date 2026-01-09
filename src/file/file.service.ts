@@ -13,7 +13,7 @@ export class FileService {
     ) {}
 
 
-     async setMenuIcon(id: number, icon:string, id_pers: number): Promise<any> {
+     async setMenuIcon(id: number, icon:string, id_pers: number, db:string): Promise<any> {
         try {
             const query = 
                 `UPDATE 
@@ -33,7 +33,7 @@ export class FileService {
         }              
     }
 
-    async setPhotoPage(id: number, src:string, id_pers: number): Promise<any> {
+    async setPhotoPage(id: number, src:string, id_pers: number, db:string): Promise<any> {
 
         //const id_org = this.configService.get<string>('ID_ORG') ?? null;
 
@@ -55,7 +55,7 @@ export class FileService {
         }              
     }
 
-    async uploadPhoto(id: number, src:string, id_pers: number, id_org: number): Promise<any> {
+    async uploadPhoto(id: number, src:string, id_pers: number, id_org: number, db:string): Promise<any> {
 
         try {
             //const id_org = this.configService.get<string>('ID_ORG') ?? null;
@@ -118,7 +118,7 @@ export class FileService {
         }              
     }*/
 
-    async setPhotoVideoCollection(id: number, icon:string, id_pers: number): Promise<any> {
+    async setPhotoVideoCollection(id: number, icon:string, id_pers: number, db:string): Promise<any> {
         try {
             const query = 
                 `UPDATE 
@@ -134,7 +134,7 @@ export class FileService {
         }              
     }
 
-    async setPhotoSliderPage(id: number, icon:string, id_pers: number): Promise<any> {
+    async setPhotoSliderPage(id: number, icon:string, id_pers: number, db:string): Promise<any> {
         try {
             const query = 
                 `UPDATE 
@@ -150,7 +150,7 @@ export class FileService {
         }              
     }
 
-    async setPhotoSliderBaner(id: number, icon:string, id_pers: number): Promise<any> {
+    async setPhotoSliderBaner(id: number, icon:string, id_pers: number, db:string): Promise<any> {
        /* try {
             const query = 
                 `UPDATE 
@@ -166,7 +166,7 @@ export class FileService {
         }    */          
     }
 
-    async setPhotoCollection(id: number, src:string, id_pers: number, id_org: number): Promise<any> {
+    async setPhotoCollection(id: number, src:string, id_pers: number, id_org: number, db:string): Promise<any> {
 
         //const id_org = this.configService.get<string>('ID_ORG') ?? null;
 

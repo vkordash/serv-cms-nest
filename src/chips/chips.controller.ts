@@ -18,10 +18,15 @@ export class ChipsController {
     @ApiResponse({status:200, type: String, isArray: true })
     @UseGuards(JwtAuthGuard)
     @Get('')
-        async getPage(@Query('id') id: number, @Query('id_component') id_component: number) {
+        async getPage(
+                @Query('id') id: number, 
+                @Query('id_component') id_component: number,
+                @User() user: JwtPayload
+            ) {
             const params = {
                 id:id,
-                id_component:id_component 
+                id_component:id_component,
+                db: user.db 
             };
             return this.ChipsService.getData(params);
         } 
@@ -40,7 +45,8 @@ export class ChipsController {
                 id:id,
                 id_component:id_component,
                 name: name,
-                id_pers: user.id_pers 
+                id_pers: user.id_pers,
+                db: user.db 
             };
             return this.ChipsService.add(params);
         } 
@@ -59,7 +65,8 @@ export class ChipsController {
                 id:id,
                 id_component:id_component,
                 name: name,
-                id_pers: user.id_pers 
+                id_pers: user.id_pers,
+                db: user.db 
             };
             return this.ChipsService.delete(params);
         } 

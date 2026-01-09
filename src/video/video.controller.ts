@@ -6,6 +6,7 @@ import { VideoDto } from './dto/video.dto';
 import { VideoService } from './video.service';
 import { User } from 'src/common/decorators/user.decorator';
 import type { JwtPayload } from 'src/auth/types/jwt-payload.type';
+import { use } from 'passport';
 
 @Controller('video')
 export class VideoController {
@@ -18,12 +19,19 @@ export class VideoController {
         @ApiResponse({status:200, type: [VideoDto] })
         @UseGuards(JwtAuthGuard)  
         @Get('')
-            async getListPage(@Query('id_menu') id_menu: number, @Query('offset') offset: number = 0, @Query('limit') limit: number = 12, @Query('search') search: string =  '') {
+            async getListPage(
+                @Query('id_menu') id_menu: number, 
+                @Query('offset') offset: number = 0, 
+                @Query('limit') limit: number = 12, 
+                @Query('search') search: string =  '',
+                @User() user: JwtPayload
+            ) {
                 const params = {
                     id_menu:id_menu,
                     offset:offset,
                     limit: limit,
-                    search: search
+                    search: search,
+                    db: user.db
                 };
                 console.log(params);
                 return this.VideoService.getList(params);
@@ -33,12 +41,16 @@ export class VideoController {
         @ApiResponse({status:200, type: Number })
         @UseGuards(JwtAuthGuard)  
         @Get('cnt')
-            async getCnt(@Query('id_menu') id_menu: number, @Query('search') search: string =  '') {
+            async getCnt(
+                @Query('id_menu') id_menu: number, 
+                @Query('search') search: string =  '',
+                @User() user: JwtPayload
+            ) {
                 const params = {
                     id_menu:id_menu,
-                    search: search
+                    search: search,
+                    db: user.db
                 };
-                console.log(params);
                 return this.VideoService.getCnt(params);
             } 
         
@@ -53,7 +65,8 @@ export class VideoController {
                 const params = {
                     id_menu:id_menu,
                     id_pers: user.id_pers,
-                    id_org: user.id_org
+                    id_org: user.id_org,
+                    db: user.db
                 };
                 console.log(params);
                 return this.VideoService.add(params);
@@ -69,7 +82,8 @@ export class VideoController {
             ) {
                 const params = {
                     id:id,
-                    id_pers: user.id_pers
+                    id_pers: user.id_pers,
+                    db: user.db
                 };
                 console.log(params);
                 return this.VideoService.delete(params);
@@ -89,7 +103,8 @@ export class VideoController {
                     id:id,
                     name: name,
                     val: val,
-                    id_pers: user.id_pers
+                    id_pers: user.id_pers,
+                    db: user.db
                 };
                 console.log(params);
                 return this.VideoService.update(params);

@@ -18,8 +18,13 @@ export class ComponentController {
     @ApiResponse({status:200, type: [ComponentDto] })
     @UseGuards(JwtAuthGuard)
     @Get()
-    async getData() {
-            return this.ComponentService.getData();
+    async getData( 
+            @User() user: JwtPayload
+        ) {
+            const params = {
+                db:user.db                
+            };
+            return this.ComponentService.getData(params);
         }
     
     @ApiOperation({summary: 'Отримати список компонентів '})
@@ -31,7 +36,8 @@ export class ComponentController {
             @User() user: JwtPayload
         ) {
             const params = {
-                id:id                
+                id:id,
+                db: user.db                
             };
             return this.ComponentService.getItem(params);
         } 

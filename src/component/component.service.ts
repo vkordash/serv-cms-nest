@@ -16,7 +16,9 @@ export class ComponentService {
     ) {}
 
 
-    async getData(): Promise<ComponentDto[]> {    
+    async getData(params: {db: string}): Promise<ComponentDto[]> {    
+        
+        const { db } = params;
         
         const query = `SELECT id, name FROM public.components where activ=1 ORDER BY id ASC`;
 
@@ -37,11 +39,11 @@ export class ComponentService {
         }
     }
 
-    async getItem(params: { id: number}): Promise<ComponentDto[]> {    
+    async getItem(params: { id: number, db: string}): Promise<ComponentDto[]> {    
         
         const query = `SELECT * FROM public.components where id=$1 limit 1`;
         
-        const { id } = params;
+        const { id, db } = params;
 
         try {
             const res = await this.pool.query(query,[id]);

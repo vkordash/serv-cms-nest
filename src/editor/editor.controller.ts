@@ -32,7 +32,8 @@ export class EditorController {
                 id_pers: user.id_pers,
                 id_menu: params.menuId,
                 tp_page: params.pageTp,
-                id_org : user.id_org
+                id_org : user.id_org,
+                db: user.db
             };
             console.log(data);
             return this.EditorService.save(data);
@@ -48,7 +49,8 @@ export class EditorController {
         ) {
             const params = {
                 id_menu:id_menu,
-                id_pers: user.id_pers 
+                id_pers: user.id_pers,
+                db: user.db 
             };
             return this.EditorService.getSubMenu(params);
         } 
@@ -84,7 +86,8 @@ export class EditorController {
                 id_component:body.pageTp,
                 id_pers: user.id_pers,
                 path: file.path,
-                srcDir: file.destination 
+                srcDir: file.destination,
+                db: user.db 
             };
             
            const res =  this.EditorService.Upload_Files(params);
@@ -127,7 +130,8 @@ export class EditorController {
             id_component:body.pageTp,
             id_pers: user.id_pers,
             path: '',
-            srcDir: ''
+            srcDir: '',
+            db: user.db
         };
 
     /*    

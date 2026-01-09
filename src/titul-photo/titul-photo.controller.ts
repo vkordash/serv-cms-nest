@@ -18,9 +18,13 @@ export class TitulPhotoController {
     @ApiResponse({status:200, type: [TitulPhotoDto] })
     @UseGuards(JwtAuthGuard)  
     @Get('')
-        async getTitPhoto(@Query('id') id: number) {
+        async getTitPhoto(
+            @Query('id') id: number,
+            @User() user: JwtPayload
+        ) {
             const params = {
-                id:id 
+                id:id,
+                db: user.db 
             };
             return this.TitulPhotoService.getTitPhoto(params);
         }  
@@ -35,7 +39,8 @@ export class TitulPhotoController {
         ) {
             const params = {
                 id:id,
-                id_pers: user.id_pers 
+                id_pers: user.id_pers,
+                db:user.db 
             };
             return this.TitulPhotoService.delete(params);
         } 
@@ -58,7 +63,8 @@ export class TitulPhotoController {
                 alt: alt, 
                 height:height, 
                 width:width,
-                id_pers: user.id_pers
+                id_pers: user.id_pers,
+                db:user.db
             };
             return this.TitulPhotoService.update(params);
         }   

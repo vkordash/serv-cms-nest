@@ -16,9 +16,13 @@ export class AccessController {
         @ApiResponse({status:200, type: [AccessDto] })
         @UseGuards(JwtAuthGuard)  
         @Get('')
-            async getData(@Query('id_menu') id_menu: number) {
+            async getData(
+                    @Query('id_menu') id_menu: number,
+                    @User() user: JwtPayload
+                ) {
                 const params = {
-                    id_menu:id_menu 
+                    id_menu:id_menu,
+                    db: user.db 
                 };
                 return this.AccessService.getData(params);
             }  
@@ -36,7 +40,8 @@ export class AccessController {
             const params = {
                 id_menu:id_menu,
                 id_user:id_user,
-                id_pers: user.id_pers 
+                id_pers: user.id_pers,
+                db: user.db 
             };
             return this.AccessService.add(params);
         }  
@@ -54,7 +59,8 @@ export class AccessController {
             const params = {
                 id_menu:id_menu,
                 id_user:id_user,
-                id_pers: user.id_pers 
+                id_pers: user.id_pers,
+                db: user.db 
             };
             return this.AccessService.delete(params);
         }  

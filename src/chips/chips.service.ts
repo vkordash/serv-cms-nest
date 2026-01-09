@@ -15,8 +15,8 @@ export class ChipsService {
         private configService: ConfigService
     ) {}
 
-    async getData(params: { id: number, id_component : number }): Promise<string[]> {
-            const { id, id_component } = params;
+    async getData(params: { id: number, id_component : number, db:string }): Promise<string[]> {
+            const { id, id_component, db } = params;
     
             if (!id || isNaN(Number(id))) {
                 throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -40,9 +40,9 @@ export class ChipsService {
             }
         }
     
-    async delete(params: { id: number, id_component : number, name : string }): Promise<any> {
+    async delete(params: { id: number, id_component : number, name : string, db:string }): Promise<any> {
             
-        const { id, id_component, name } = params;
+        const { id, id_component, name, db } = params;
     
             if (!id || isNaN(Number(id))) {
                 throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -74,9 +74,9 @@ export class ChipsService {
             }
         }
     
-    async add(params: { id: number, id_component : number, name : string }): Promise<any> {
+    async add(params: { id: number, id_component : number, name : string, db:string }): Promise<any> {
             
-        const { id, id_component, name } = params;
+        const { id, id_component, name, db } = params;
     
             if (!id || isNaN(Number(id))) {
                 throw new BadRequestException('Параметр "id" обязателен и должен быть числом');

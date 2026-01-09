@@ -12,9 +12,9 @@ export class EmployeeService {
         private configService: ConfigService
     ) {}
 
-    async getData(params: { id_pers: number }): Promise<any> {
+    async getData(params: { id_pers: number, db:string }): Promise<any> {
 
-        const { id_pers } = params;
+        const { id_pers, db } = params;
 
         try {
             const query = `
@@ -29,9 +29,9 @@ export class EmployeeService {
         }              
     }
 
-    async getAccess(params: {id: number}): Promise<any> {
+    async getAccess(params: {id: number, db:string}): Promise<any> {
 
-        const { id } = params;
+        const { id, db } = params;
 
         try {
             const query = `
@@ -55,10 +55,11 @@ export class EmployeeService {
     async update(params: {
             id_pers: number, 
             name: string, 
-            val:string 
+            val:string,
+            db: string 
         }): Promise<any> {
 
-        const { id_pers, name, val } = params;
+        const { id_pers, name, val, db } = params;
         
         try {
 

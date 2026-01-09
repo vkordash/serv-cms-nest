@@ -53,7 +53,7 @@ export class EditorService {
         //console.log(params.text);
         // const res =await getPool(db).query("UPDATE pages_new set text=$1 where id=$2",[text,id]);  
         //console.log(res);      
-        const { id_page, text, id_pers, id_menu, tp_page, id_org} = params;
+        const { id_page, text, id_pers, id_menu, tp_page, id_org, db} = params;
 
         if (!id_page || isNaN(Number(id_page))) {
             throw new BadRequestException('Параметр "pageId" обязателен и должен быть числом');
@@ -124,9 +124,9 @@ export class EditorService {
         }        
     }
 
-    async getSubMenu (params: { id_menu: number, id_pers:number }): Promise<any> {
+    async getSubMenu (params: { id_menu: number, id_pers:number, db: string }): Promise<any> {
         
-        const { id_menu, id_pers } = params;
+        const { id_menu, id_pers, db } = params;
 
         try {
 
@@ -174,7 +174,7 @@ export class EditorService {
         //console.log(params.text);
         // const res =await getPool(db).query("UPDATE pages_new set text=$1 where id=$2",[text,id]);  
         //console.log(res);      
-        const { id_page, id_menu, id_component, id_pers, path, srcDir} = params;
+        const { id_page, id_menu, id_component, id_pers, path, srcDir, db} = params;
 
         const targetDir = srcDir.replace('web_docs', 'uploads');
         const lnk = await this.createSymlink(path, targetDir);

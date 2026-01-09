@@ -12,6 +12,7 @@ import { multerFileFilter, multerFileFilterEditor } from 'src/common/multer/mult
 import { FileService } from './file.service';
 import { User } from 'src/common/decorators/user.decorator';
 import type { JwtPayload } from 'src/auth/types/jwt-payload.type';
+import { use } from 'passport';
 
 @Controller('file')
 export class FileController {
@@ -42,6 +43,7 @@ export class FileController {
           const id_component =params.id_component;
           const id_pers = user.id_pers;
           const id_org = user.id_org;
+          const db = user.db;
           console.log(params);
           if (!file) {
             throw new BadRequestException('Файл не загружен');
@@ -55,25 +57,25 @@ export class FileController {
           
           // Меню іконка
           if (id_component==0)
-            return this.FileService.setMenuIcon(id, file.path, id_pers);
+            return this.FileService.setMenuIcon(id, file.path, id_pers, db);
 
           // Титульне фото
             if (id_component==2)
-            return this.FileService.setPhotoPage(id, file.path, id_pers);
+            return this.FileService.setPhotoPage(id, file.path, id_pers,db);
               
           // Фото відеогалереї
           if (id_component==8)
-            return this.FileService.setPhotoCollection(id, file.path, id_pers, id_org);
+            return this.FileService.setPhotoCollection(id, file.path, id_pers, id_org, db);
 
           // Фото галерея
           if (id_component==9)
-            return this.FileService.uploadPhoto(id, file.path, id_pers, id_org);
+            return this.FileService.uploadPhoto(id, file.path, id_pers, id_org,db);
           
           if (id_component==10)
-                return this.FileService.setPhotoPage(id, file.path, id_pers);
+                return this.FileService.setPhotoPage(id, file.path, id_pers,db);
 
           if (id_component==11)
-            return this.FileService.setPhotoPage(id, file.path, id_pers);
+            return this.FileService.setPhotoPage(id, file.path, id_pers,db);
             
         }
         
@@ -102,6 +104,7 @@ export class FileController {
 
       const { id, id_component } = params;
       const id_pers = user.id_pers;
+      const db = user.db;
       console.log(files);
       return files;
       /*return {

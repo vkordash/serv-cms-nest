@@ -16,12 +16,19 @@ export class SliderController {
     @ApiResponse({status:200, type: [SliderDto] })
     @UseGuards(JwtAuthGuard)  
     @Get('')
-        async getData(@Query('id_menu') id_menu: number, @Query('offset') offset: number = 0, @Query('limit') limit: number = 12, @Query('search') search: string =  '') {
+        async getData(
+            @Query('id_menu') id_menu: number,
+            @Query('offset') offset: number = 0, 
+            @Query('limit') limit: number = 12, 
+            @Query('search') search: string =  '',
+            @User() user: JwtPayload
+        ) {
              const params = {
                 id_menu:id_menu,
                 offset:offset,
                 limit: limit,
-                search: search
+                search: search,
+                db: user.db
             };
             console.log(params);
             return this.SliderService.getData(params);
@@ -31,9 +38,13 @@ export class SliderController {
     @ApiResponse({status:200, type: [SliderDto] })
     @UseGuards(JwtAuthGuard)  
     @Get('cnt')
-        async getCntData(@Query('id_menu') id_menu: number) {
+        async getCntData(
+            @Query('id_menu') id_menu: number,
+            @User() user: JwtPayload        
+        ) {
              const params = {
-                id_menu:id_menu               
+                id_menu:id_menu,
+                db: user.db               
             };
             console.log(params);
             return this.SliderService.getCnt(params);
@@ -50,7 +61,8 @@ export class SliderController {
              const params = {
                 id_menu:id_menu,
                 id_pers: user.id_pers,
-                id_org: user.id_org
+                id_org: user.id_org,
+                db: user.db
             };
             console.log(params);
             return this.SliderService.add(params);

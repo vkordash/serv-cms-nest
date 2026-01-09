@@ -6,6 +6,7 @@ import { PageDto } from './dto/page.dto';
 import { PageService } from './page.service';
 import { User } from 'src/common/decorators/user.decorator';
 import type { JwtPayload } from 'src/auth/types/jwt-payload.type';
+import { use } from 'passport';
 
 
 @Controller('page')
@@ -25,10 +26,15 @@ export class PageController {
     @ApiResponse({status:200, type: [PageDto] })
     @UseGuards(JwtAuthGuard)
     @Get('')
-        async getPage(@Query('id') id: number, @Query('typ') typ: number = 0) {
+        async getPage(
+            @Query('id') id: number, 
+            @Query('typ') typ: number = 0,
+            @User() user: JwtPayload
+        ) {
             const params = {
                 id:id,
-                tp:typ 
+                tp:typ,
+                db: user.db 
             };
             console.log(params);
             return this.PageService.getPage(params);
@@ -38,12 +44,19 @@ export class PageController {
     @ApiResponse({status:200, type: [PageDto] })
     @UseGuards(JwtAuthGuard)  
     @Get('list')
-        async getListPage(@Query('id_menu') id_menu: number, @Query('offset') offset: number = 0, @Query('limit') limit: number = 12, @Query('search') search: string =  '') {
+        async getListPage(
+            @Query('id_menu') id_menu: number, 
+            @Query('offset') offset: number = 0, 
+            @Query('limit') limit: number = 12, 
+            @Query('search') search: string =  '',
+            @User() user: JwtPayload
+        ) {
             const params = {
                 id_menu:id_menu,
                 offset:offset,
                 limit: limit,
-                search: search
+                search: search,
+                db:user.db
             };
             //console.log(params);
             return this.PageService.getList(params);
@@ -66,9 +79,13 @@ export class PageController {
     @ApiResponse({status:200, type: [PageDto] })
     @UseGuards(JwtAuthGuard)  
     @Get('pref')
-        async getPref(@Query('id') id: number) {
+        async getPref(
+            @Query('id') id: number,
+            @User() user: JwtPayload
+        ) {
             const params = {
-                id:id                
+                id:id,
+                db:user.db                
             };
             console.log(params);
             return this.PageService.getPref(params);
@@ -88,7 +105,8 @@ export class PageController {
                 id_page:id_page,
                 name:name,
                 val:val,
-                id_pers: user.id_pers 
+                id_pers: user.id_pers,
+                db: user.db
             };
             console.log(params);
             return this.PageService.update(params);
@@ -105,7 +123,8 @@ export class PageController {
             const params = {
                 id_menu:id_menu,
                 id_pers: user.id_pers,
-                id_org: user.id_org
+                id_org: user.id_org,
+                db: user.db
             };
             console.log(params);
             return this.PageService.add(params);
@@ -119,7 +138,8 @@ export class PageController {
         async delTitulPhoto(@Query('id') id: number, @User() user: JwtPayload) {
             const params = {
                 id:id,
-                id_pers: user.id_pers               
+                id_pers: user.id_pers,
+                db: user.db               
             };
             console.log(params);
             return this.PageService.delTitulPhoto(params);

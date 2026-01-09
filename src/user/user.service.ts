@@ -12,8 +12,9 @@ export class UserService {
         private configService: ConfigService
     ) {}
 
-    async getData(params: { id_pers: number }): Promise<any> {
-            const { id_pers } = params;
+    async getData(params: { id_pers: number, db: string }): Promise<any> {
+            
+            const { id_pers, db } = params;
     
             if (!id_pers || isNaN(Number(id_pers))) {
                 throw new BadRequestException('Параметр "id" обязателен и должен быть числом');

@@ -16,9 +16,12 @@ export class EmployeeController {
     @ApiResponse({status:200, type: [EmployeeDto] })
     @UseGuards(JwtAuthGuard)  
     @Get('')
-        async getData(@User() user: JwtPayload) {
+        async getData(
+            @User() user: JwtPayload
+        ) {
             const params = {
-                id_pers:user.id_pers 
+                id_pers:user.id_pers,
+                db: user.db 
             };
             return this.EmployeeService.getData(params);
         }  
@@ -28,9 +31,13 @@ export class EmployeeController {
     @ApiResponse({status:200, type: [EmployeeDto] })
     @UseGuards(JwtAuthGuard)  
     @Get('access')
-        async getAccess(@Query('id') id: number) {
+        async getAccess(
+            @Query('id') id: number,
+            @User() user: JwtPayload
+        ) {
             const params = {
-                id:id 
+                id:id,
+                db: user.db  
             };
             return this.EmployeeService.getAccess(params);
         }
@@ -47,7 +54,8 @@ export class EmployeeController {
             const params = {
                 id_pers: user.id_pers,
                 name:name,
-                val:val                 
+                val:val,
+                db: user.db                 
             };
             return this.EmployeeService.update(params);
         }

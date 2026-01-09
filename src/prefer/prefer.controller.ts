@@ -18,9 +18,13 @@ export class PreferController {
     @ApiResponse({status:200, type: [PreferDto] })
     @UseGuards(JwtAuthGuard)
     @Get('org')
-        async getDataOrg(@Query('name') name: string) {
+        async getDataOrg(
+            @Query('name') name: string,
+            @User() user: JwtPayload
+        ) {
             const params = {
-                name:name
+                name:name,
+                db: user.db
             };
             console.log(params);
             return this.PreferService.getDataOrg(params);
@@ -30,10 +34,14 @@ export class PreferController {
     @ApiResponse({status:200, type: [PreferDto] })
     @UseGuards(JwtAuthGuard)
     @Get('user')
-        async getUserPref(@User() user: JwtPayload, @Query('name') name?: string) {
+        async getUserPref(
+            @User() user: JwtPayload, 
+            @Query('name') name: string
+        ) {
             const params = {
                 id_pers: user.id_pers,
-                name:name                
+                name:name,
+                db: user.db                
             };
             console.log(params);
             return this.PreferService.getUserPref(params);
@@ -53,7 +61,7 @@ export class PreferController {
                 db : user.db,
                 id_org : user.id_org,
                 name:name,
-                val:val                 
+                val:val
             };
             console.log(params);
             return this.PreferService.updatePrefOrg(params);
@@ -73,31 +81,8 @@ export class PreferController {
                 db : user.db,
                 id_org : user.id_org,
                 name:name,
-                val:val                 
+                val:val                
             };
-           // console.log(params);
             return this.PreferService.updatePrefUser(params);
         } 
 }
-
-/*
-
-getPreferOrg():Observable<any>{               
-          return this.http.get<number>(this.url_nest_local+"/pref/org");           
-          //return this.http.get<number>(this.url_nest_local+"/pref/?group=org");           
-        }
-
-        updatePreferOrg(name:string,val:any):Observable<any>{               
-          return this.http.get<number>(this.url_nest_local+"/pref/org_upd/?name="+name+"&val="+val);      
-        }
-
-        getPreferUser():Observable<any>{               
-          return this.http.get<any>(this.url_nest_local+"/pref/user");           
-        }
-
-        updatePreferUser(name:string,val:any):Observable<any>{
-          let x = this.http.get<any>(this.url_nest_local+"/pref/user_upd/?name="+name+"&val="+val);
-          return x;         
-        }
-
-*/
