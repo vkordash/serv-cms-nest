@@ -6,6 +6,10 @@ import * as he from 'he';
 import { Pool } from 'pg';
 import { getSrc } from 'src/common/src-img';
 
+export interface VideoListResponse {
+  data: VideoDto[];
+  total: number;
+}
 
 @Injectable()
 export class VideoService {
@@ -17,7 +21,7 @@ export class VideoService {
         private configService: ConfigService
     ) {}
     
-    async getList(params: { id_menu: number, offset:number, limit:number, search?:string }): Promise<VideoDto[]> {
+    async getList(params: { id_menu: number, offset:number, limit:number, search?:string }): Promise<VideoListResponse> {
             
             const { id_menu, offset, limit, search } = params;
     
@@ -30,37 +34,44 @@ export class VideoService {
     
             try {
                
-                const query = `
-                    SELECT 
-                        id,
-                        head,
-                        title,
-                        date,
-                        text,
-                        v_len,
-                        activ,
-                        link_frame,
-                        rss, 
-                        soc_nets, 
-                        sl_main, 
-                        sl_news,
-                        sl_pages,
-                        sl_banners,
-                        new_window, 
-                        show_dt, 
-                        v_len,
-                        photo_src
-                    FROM pages_new p 
-                    WHERE id_menu=${id_menu} 
-                    ORDER BY create_date DESC 
-                    LIMIT ${limit} 
-                    OFFSET ${offset}`;
+                const hasSearch = !!(search && search.trim());
+            const searchQuery = hasSearch 
+                ? "AND to_tsvector('russian', p.text) @@ plainto_tsquery('russian', $4)" 
+                : '';
+
+            const queryParams = hasSearch
+                ? [id_menu, limit, offset, search.trim()]
+                : [id_menu, limit, offset];
                 
-                console.log(query);
+            const query = `
+                SELECT 
+                    p.*,
+                    COUNT(*) OVER() AS total_count 
+                FROM 
+                    pages_new p
+                WHERE
+                    id_menu = $1 
+                    ${searchQuery}
+                ORDER BY 
+                    p.create_date DESC
+                LIMIT
+                    $2 
+                OFFSET 
+                    $3`;
+
+            const { rows } = await this.pool.query(query, queryParams);
+            const total = rows.length ? Number(rows[0].total_count) : 0;
+
+            if (rows.length === 0) {
+                return {
+                data: [],
+                total,
+                };
+            }
     
-                const { rows } = await this.pool.query(query);
-    
-                for (const row of rows) {
+            
+            const data = rows.map(row => {
+                delete row.total_count;
                         
                     if (row.title)
                         row.title = striptags(he.decode(row.title));
@@ -84,12 +95,13 @@ export class VideoService {
                         row[key] = row[key] === 1;
                     }
         
-                   /* if (row.photo) {
-                        row.photo = getSrc(row.photo, SiteUrl);
-                        
-                    }  */                       
-                }
-                return rows;
+                   return row;
+                });              
+            
+                return {
+                    data,
+                    total
+                }   
             }  catch (error) {
                 this.logger.error(`❌ Помилка отримання списку сторінок (id=${id_menu}): ${error.message}`, error.stack);
                 throw new InternalServerErrorException('❌ Помилка отримання списку сторінок (id=${id_menu})');
