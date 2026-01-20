@@ -12,12 +12,13 @@ import { multerFileFilter, multerFileFilterEditor } from 'src/common/multer/mult
 import { FileService } from './file.service';
 import { User } from 'src/common/decorators/user.decorator';
 import type { JwtPayload } from 'src/auth/types/jwt-payload.type';
+import { ImageService } from 'src/services/image.service';
 import { use } from 'passport';
 
 @Controller('file')
 export class FileController {
 
-    constructor(private readonly FileService: FileService) {}
+    constructor(private readonly FileService: FileService, private readonly imageService: ImageService) {}
 
     @Post('upload')
     @ApiOperation({ summary: 'Upload file' })
@@ -33,7 +34,7 @@ export class FileController {
           }),
         )
 
-        uploadFile(
+        async uploadFile(
             @UploadedFile() file: Express.Multer.File,
             @Body() params: UploadFileDto,
             @Req() req: Request,
@@ -44,17 +45,27 @@ export class FileController {
           const id_pers = user.id_pers;
           const id_org = user.id_org;
           const db = user.db;
-          console.log(params);
+          
+
           if (!file) {
             throw new BadRequestException('Файл не загружен');
           }
           
           file.path = file.path.replace('var/www/uploads', 'web_docs');
           
-          console.log(id);
-          console.log(id_component);
-          console.log(file.path);
+          const images = await this.imageService.generateImages(file);
+          console.log(images);
           
+          /*const normalize = (p: string) =>
+          p.replace('/var/www/uploads', 'web_docs');
+
+          return {
+            original: normalize(images.large),
+            medium: normalize(images.medium),
+            thumb: normalize(images.thumb),
+          };*/
+
+
           // Меню іконка
           if (id_component==0)
             return this.FileService.setMenuIcon(id, file.path, id_pers, db);
