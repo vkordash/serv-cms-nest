@@ -54,7 +54,7 @@ export class FileController {
           
           file.path = file.path.replace('var/www/uploads', 'web_docs');
           
-        /*  const images = await this.imageService.generateImages(file);
+          const images = await this.imageService.generateImages(file);
           console.log(images);
           
           /*const normalize = (p: string) =>
