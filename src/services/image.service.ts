@@ -34,7 +34,7 @@ export class ImageService {
     }
 
     // удаляем исходный «сырой» файл
-    fs.unlinkSync(file.path);
+    //fs.unlinkSync(file.path);
 
     return output;
   }
