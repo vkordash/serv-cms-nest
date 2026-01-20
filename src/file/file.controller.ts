@@ -12,14 +12,14 @@ import { multerFileFilter, multerFileFilterEditor } from 'src/common/multer/mult
 import { FileService } from './file.service';
 import { User } from 'src/common/decorators/user.decorator';
 import type { JwtPayload } from 'src/auth/types/jwt-payload.type';
-//import { ImageService } from 'src/services/image.service';
+import { ImageService } from 'src/services/image.service';
 import { use } from 'passport';
 
 @Controller('file')
 export class FileController {
 
-    constructor(private readonly FileService: FileService) {}
-    //  constructor(private readonly FileService: FileService, private readonly imageService: ImageService) {}
+//    constructor(private readonly FileService: FileService) {}
+    constructor(private readonly FileService: FileService, private readonly imageService: ImageService) {}
 
     @Post('upload')
     @ApiOperation({ summary: 'Upload file' })
