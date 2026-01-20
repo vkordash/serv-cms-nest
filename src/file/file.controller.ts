@@ -52,11 +52,13 @@ export class FileController {
             throw new BadRequestException('Файл не загружен');
           }
           
-          file.path = file.path.replace('var/www/uploads', 'web_docs');
+          
           
           const images = await this.imageService.generateImages(file);
           console.log(images);
           
+          file.path = file.path.replace('var/www/uploads', 'web_docs');
+
           /*const normalize = (p: string) =>
           p.replace('/var/www/uploads', 'web_docs');
 
