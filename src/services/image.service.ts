@@ -19,7 +19,7 @@ export class ImageService {
         `${size.prefix}-${filename}.jpg`,
       );
 
-      /*await sharp(file.path)
+      await sharp(file.path)
         .resize({
           width: size.width,
           withoutEnlargement: true,
@@ -28,7 +28,7 @@ export class ImageService {
           quality: size.quality,
           mozjpeg: true,
         })
-        .toFile(target);*/
+        .toFile(target);
 
       output[size.prefix] = target;
     }
