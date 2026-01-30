@@ -62,6 +62,7 @@ export class MenuController {
             id:id,
             db: user.db     
         };
+        console.log(params);
         return this.MenuService.getMenu(params);
         }  
     

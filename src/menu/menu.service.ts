@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger, InternalServerErrorException, BadRequestExc
 //import striptags from 'striptags';
 import { ConfigService } from '@nestjs/config';
 import { MenuItemDto } from './dto/menuItem.dto';
+import { TenantPoolService } from 'src/tenant-pool/tenant-pool.service';
 import { Pool } from 'pg';
 import { resolveObjectURL } from 'buffer';
 //import { decode } from 'he';
@@ -13,12 +14,16 @@ export class MenuService {
     private readonly logger = new Logger(MenuService.name);
 
     constructor(
-        @Inject('PG_CONNECTION') private readonly pool: Pool,
+        private poolService: TenantPoolService,
         private configService: ConfigService
     ) {}
 
     async getMenu(params: { id: number, db:string }): Promise<MenuItemDto[]> {
         const { id, db } = params;
+
+        console.log(db);
+        
+        const pool = this.poolService.getPool(db);
 
         if (!id || isNaN(Number(id))) {
         throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -43,7 +48,7 @@ export class MenuService {
                 
             `;
             
-            const res = await this.pool.query(query);
+            const res = await pool.query(query);
             if (res.rowCount == 0)
                 return [];
             const rows = res.rows;
@@ -76,7 +81,8 @@ export class MenuService {
     async update(params: { id: number, name: string, val:string, id_pers: number, db:string }){
         
         const { id, name, val, id_pers, db  } = params; 
-        
+        const pool = this.poolService.getPool(db);
+
         try {
             
            const arrBoolean = ['new_window', 'activ', 'show_name', 'show_dt', 'show_icon'];
@@ -111,7 +117,7 @@ export class MenuService {
                     last_user = $2
                 WHERE id = $3
                 `;
-            const res =  await this.pool.query(query, [_val, id_pers, id]);           
+            const res =  await pool.query(query, [_val, id_pers, id]);           
             return res.rowCount;                      
         } catch (error) {
             this.logger.error(`❌ Помилка update меню (id=${id}): ${error.message}`, error.stack);
@@ -122,6 +128,7 @@ export class MenuService {
     async getMenuItem(params: { id: number, db:string }): Promise<MenuItemDto> {
         const { id, db } = params;
 
+        const pool = this.poolService.getPool(db);
         console.log('getMenuItem');
         console.log(params);
         if (!id || isNaN(Number(id))) {
@@ -137,7 +144,7 @@ export class MenuService {
                 WHERE id = ${id} 
                 LIMIT 1`;
             
-            const { rows } = await this.pool.query(query);
+            const { rows } = await pool.query(query);
             return rows;
         } catch (error) {
             this.logger.error(`❌ Ошибка получения меню (id=${id}): ${error.message}`, error.stack);
@@ -148,6 +155,8 @@ export class MenuService {
     async getMenuById(params: { id: number, db:string }): Promise<MenuItemDto> {
         
         const { id, db } = params;
+
+        const pool = this.poolService.getPool(db);
         
         console.log('getMenuById');
         console.log(params);
@@ -184,7 +193,7 @@ export class MenuService {
                 FROM menu_new 
                 WHERE id = ${id} 
                 LIMIT 1`;            
-            const { rows } = await this.pool.query(query);
+            const { rows } = await pool.query(query);
             //console.log(rows);
             //if (rows[0].icon) 
             //    rows[0].icon = getSrc(rows[0].icon, SiteUrl);
@@ -200,6 +209,8 @@ export class MenuService {
         
         const { id, db } = params;
         const siteUrl = this.configService.get<string>('SITE_URL') ?? '';
+
+        const pool = this.poolService.getPool(db);
 
         if (!id || isNaN(Number(id))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -226,7 +237,7 @@ export class MenuService {
             
                 //console.log(query);
             
-                const { rows } = await this.pool.query(query);
+                const { rows } = await pool.query(query);
                // console.log(rows);
 
             for (const row of rows) {
@@ -262,6 +273,7 @@ export class MenuService {
         
         const { id, db } = params;
         const siteUrl = this.configService.get<string>('SITE_URL') ?? '';
+        const pool = this.poolService.getPool(db);
 
         if (!id || isNaN(Number(id))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -280,7 +292,7 @@ export class MenuService {
                     (select link from components where components.id =id_component) as url                     
                 FROM menu_new 
                 WHERE id = ${id}`;
-            const { rows } = await this.pool.query(query);
+            const { rows } = await pool.query(query);
             rows[0].children = await this.getMenu({ id: rows[0].key, db: db }); // 🔁 рекурсивный вызов                
             return rows[0];
         } catch (error) {
@@ -293,6 +305,8 @@ export class MenuService {
         
         const { id, id_pers, id_org, db } = params;
         //const id_org = Number(this.configService.get<string>('ID_ORG')) ?? 0;
+
+        const pool = this.poolService.getPool(db);
 
         if (!id || isNaN(Number(id))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -321,7 +335,7 @@ export class MenuService {
                     NOW(),
                     ${id_pers}                    
                 )`;                 
-            const ret = await this.pool.query(query);  
+            const ret = await pool.query(query);  
             return ret;
         } catch (error) {
             this.logger.error(`❌ Помилка видалення меню (id=${id}): ${error.message}`, error.stack);
@@ -333,6 +347,8 @@ export class MenuService {
         
         const { id, id_pers, db } = params;
         
+        const pool = this.poolService.getPool(db);
+
         if (!id || isNaN(Number(id))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
         }
@@ -348,7 +364,7 @@ export class MenuService {
                     last_date = now(),
                     last_user = ${id_pers} 
                 WHERE id=${id}`;                 
-            const ret = await this.pool.query(query);  
+            const ret = await pool.query(query);  
             return ret;
         } catch (error) {
             this.logger.error(`❌ Помилка видалення меню (id=${id}): ${error.message}`, error.stack);
@@ -360,6 +376,8 @@ export class MenuService {
         
         const { id, parent, id_pers, db } = params;
         
+        const pool = this.poolService.getPool(db);
+
         if (!id || isNaN(Number(id))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
         }
@@ -376,7 +394,7 @@ export class MenuService {
                     last_date = now(),
                     last_user = $3                      
                 WHERE id=$1`;                 
-            const ret = await this.pool.query(query,[id,parent, id_pers]);  
+            const ret = await pool.query(query,[id,parent, id_pers]);  
             return ret;
         } catch (error) {
             this.logger.error(`❌ Помилка переміщення меню (id=${id}): ${error.message}`, error.stack);
