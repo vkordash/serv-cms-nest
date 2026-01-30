@@ -3,9 +3,3 @@ export class AuthPayloadDto {
   passwd: string;
   db: string;
 }
-
-export class AuthPayloadDtoRename {
-  username: string;
-
-  password: string;
-}
