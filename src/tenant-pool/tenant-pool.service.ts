@@ -18,6 +18,7 @@ export class TenantPoolService {
       });
 
       this.pools.set(dbName, pool);
+      console.log('New pool ');
     }
 
     return this.pools.get(dbName);

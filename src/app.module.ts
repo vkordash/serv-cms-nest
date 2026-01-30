@@ -50,7 +50,7 @@ import { FileService } from './file/file.service';
 
 import { FileModule } from './file/file.module';
 import { MulterModule } from '@nestjs/platform-express';
-import { TenantPoolService } from './tenant-pool/tenant-pool.service';
+import { TenantPoolModule } from './tenant-pool/ tenant-pool.module';
 import { ImageService } from './services/image.service'
 
 
@@ -78,10 +78,12 @@ import { ImageService } from './services/image.service'
     EmployeeModule, 
     SliderModule, 
     VideoModule, 
-    EditorModule, FileModule
+    EditorModule, 
+    FileModule,
+    TenantPoolModule 
   ],
   controllers: [AppController, PageController, MenuController, PhotoController, AccessController, ChipsController, ComponentController, TitulPhotoController, UserController, PreferController, EmployeeController, SliderController, VideoController, EditorController, FileController],
-  providers: [AppService, PageService, MenuService, PhotoService, AccessService, ChipsService, ComponentService, TitulPhotoService, UserService, PreferService, EmployeeService, SliderService, VideoService, EditorService, FileService, TenantPoolService, ImageService],
+  providers: [AppService, PageService, MenuService, PhotoService, AccessService, ChipsService, ComponentService, TitulPhotoService, UserService, PreferService, EmployeeService, SliderService, VideoService, EditorService, FileService, ImageService],
 })
 export class AppModule implements NestModule{
   configure(consumer: MiddlewareConsumer) {
