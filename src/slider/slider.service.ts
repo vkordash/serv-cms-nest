@@ -5,6 +5,7 @@ import striptags from 'striptags';
 import { getSrc } from 'src/common/src-img';
 import * as he from 'he';
 import { Pool } from 'pg';
+import { TenantPoolService } from 'src/tenant-pool/tenant-pool.service';
 
 export interface SliderListResponse {
   data: SliderDto[];
@@ -17,13 +18,15 @@ export class SliderService {
     private readonly logger = new Logger(SliderService.name);
     
     constructor(
-        @Inject('PG_CONNECTION') private readonly pool: Pool,
+        private poolService: TenantPoolService,
         private configService: ConfigService
     ) {}
 
-    async getData(params: { id_menu: number, offset:number, limit:number, search?:string }): Promise<SliderListResponse> {
+    async getData(params: { id_menu: number, offset:number, limit:number, db: string, search?:string }): Promise<SliderListResponse> {
         
-        const { id_menu, offset, limit, search } = params;
+        const { id_menu, offset, limit, search, db } = params;
+
+        const pool = this.poolService.getPool(db);
 
         const BOOL_FIELDS = ['activ', 'show_dt', 'rss', 'soc_nets', 'sl_main','sl_news','sl_pages','sl_banners','new_window'];
         
@@ -61,7 +64,7 @@ export class SliderService {
                 OFFSET 
                     $3`;
 
-            const { rows } = await this.pool.query(query, queryParams);
+            const { rows } = await pool.query(query, queryParams);
             const total = rows.length ? Number(rows[0].total_count) : 0;
 
             if (rows.length === 0) {
@@ -106,9 +109,11 @@ export class SliderService {
         }
     }
 
-    async getCnt(params: { id_menu: number }): Promise<number> {
+    async getCnt(params: { id_menu: number, db: string }): Promise<number> {
         
-        const { id_menu } = params;
+        const { id_menu, db } = params;
+
+        const pool = this.poolService.getPool(db);
 
         if (!id_menu || isNaN(Number(id_menu))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -125,7 +130,7 @@ export class SliderService {
             
             console.log(query);
 
-            const { rows } = await this.pool.query(query);
+            const { rows } = await pool.query(query);
             return rows[0]; 
         } catch (error) {
             this.logger.error(`❌ Помилка отримання данних слайдера id_menu=${id_menu}: ${error.message}`, error.stack);
@@ -133,11 +138,12 @@ export class SliderService {
         }
     }
 
-    async add(params: { id_menu: number, id_pers: number }): Promise<any> {
+    async add(params: { id_menu: number, id_pers: number, id_org: number, db: string }): Promise<any> {
         
-        const { id_menu, id_pers } = params;
-        
-        const id_org = Number(this.configService.get<string>('ID_ORG')) ?? 0;
+        const { id_menu, id_pers, id_org, db } = params;
+
+        const pool = this.poolService.getPool(db);
+        //const id_org = Number(this.configService.get<string>('ID_ORG')) ?? 0;
 
         if (!id_menu || isNaN(Number(id_menu))) {
             throw new BadRequestException('Параметр "id_menu" обязателен и должен быть числом');
@@ -168,7 +174,7 @@ export class SliderService {
                     )`;
             
             console.log(query);
-            const res = await this.pool.query(query);
+            const res = await pool.query(query);
             return res; 
         } catch (error) {
             this.logger.error(`❌ Помилка створення нового сладу id_menu= ${id_menu}: ${error.message}`, error.stack);

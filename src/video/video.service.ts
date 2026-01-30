@@ -4,6 +4,7 @@ import striptags from 'striptags';
 import { VideoDto } from './dto/video.dto';
 import * as he from 'he';
 import { Pool } from 'pg';
+import { TenantPoolService } from 'src/tenant-pool/tenant-pool.service';
 import { getSrc } from 'src/common/src-img';
 
 export interface VideoListResponse {
@@ -17,7 +18,7 @@ export class VideoService {
     private readonly logger = new Logger(VideoService.name);
     
     constructor(
-        @Inject('PG_CONNECTION') private readonly pool: Pool,
+        private poolService: TenantPoolService,
         private configService: ConfigService
     ) {}
     
@@ -25,6 +26,8 @@ export class VideoService {
             
             const { id_menu, offset, limit, search, db } = params;
     
+            const pool = this.poolService.getPool(db);
+
             const BOOL_FIELDS = ['activ', 'show_dt', 'rss', 'soc_nets', 'sl_main','sl_news','sl_pages','sl_banners','new_window'];
             //const SiteUrl = this.configService.get<string>('SITE_URL') ?? '';
     
@@ -59,7 +62,7 @@ export class VideoService {
                 OFFSET 
                     $3`;
 
-            const { rows } = await this.pool.query(query, queryParams);
+            const { rows } = await pool.query(query, queryParams);
             const total = rows.length ? Number(rows[0].total_count) : 0;
 
             if (rows.length === 0) {
@@ -112,6 +115,8 @@ export class VideoService {
             
             const { id_menu, search, db } = params;
     
+            const pool = this.poolService.getPool(db);
+
             if (!id_menu || isNaN(Number(id_menu))) {
                 throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
             }
@@ -123,7 +128,7 @@ export class VideoService {
                     FROM pages_new 
                     WHERE id_menu=${id_menu} 
                     `;                        
-                const { rows } = await this.pool.query(query);
+                const { rows } = await pool.query(query);
                 return rows[0];
             }  catch (error) {
                 this.logger.error(`❌ Помилка отримання списку сторінок (id=${id_menu}): ${error.message}`, error.stack);
@@ -135,6 +140,8 @@ export class VideoService {
             
             const { id_menu, id_pers, id_org, db } = params;
             
+            const pool = this.poolService.getPool(db);
+
             //const id_org = Number(this.configService.get<string>('ID_ORG')) ?? 0;
 
             if (!id_menu || isNaN(Number(id_menu))) {
@@ -163,7 +170,7 @@ export class VideoService {
                         ${id_pers},
                         ${id_org})                    
                     `;         
-                const res = await this.pool.query(query);
+                const res = await pool.query(query);
                 return res;
             }  catch (error) {
                 this.logger.error(`❌ Помилка отримання списку сторінок (id_menu=${id_menu}): ${error.message}`, error.stack);
@@ -172,7 +179,9 @@ export class VideoService {
         }
 
         async delete(params: { id: number, id_pers : number, db: string }): Promise<any> {
-            
+           
+            //const pool = this.poolService.getPool(db);
+
           /*  const { id_menu, search } = params;
     
             if (!id_menu || isNaN(Number(id_menu))) {
@@ -198,6 +207,8 @@ export class VideoService {
             
             const { id, name, val, id_pers, db } = params;
                 
+            const pool = this.poolService.getPool(db);
+
             if (!id || isNaN(Number(id))) {
                 throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
             }
@@ -251,7 +262,7 @@ export class VideoService {
                    WHERE id=${id} 
                     `;
                 console.log(query);                        
-                const res = await this.pool.query(query);
+                const res = await pool.query(query);
                 return res;
             }  catch (error) {
                 this.logger.error(`❌ Помилка отримання списку сторінок (id=${id}): ${error.message}`, error.stack);

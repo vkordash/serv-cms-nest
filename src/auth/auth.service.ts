@@ -33,7 +33,7 @@ export class AuthService {
     try {
         
       // Получаем пул именно для той базы, которая пришла в запросе (db)
-      const pool = this.poolService.getPool('mena_rada');
+      const pool = this.poolService.getPool(db);
 
         const query = `
           SELECT 

@@ -2,7 +2,8 @@ import { Inject, Injectable, Logger, InternalServerErrorException, BadRequestExc
 //import striptags from 'striptags';
 import { ConfigService } from '@nestjs/config';
 import { ComponentDto } from './dto/component.dto';
-import { Pool } from 'pg';
+import { TenantPoolService } from 'src/tenant-pool/tenant-pool.service';
+//import { Pool } from 'pg';
 //import { decode } from 'he';
 
 @Injectable()
@@ -11,7 +12,7 @@ export class ComponentService {
     private readonly logger = new Logger(ComponentService.name);
 
     constructor(
-        @Inject('PG_CONNECTION') private readonly pool: Pool,
+        private poolService: TenantPoolService,
         private configService: ConfigService
     ) {}
 
@@ -20,10 +21,12 @@ export class ComponentService {
         
         const { db } = params;
         
+        const pool = this.poolService.getPool(db);
+
         const query = `SELECT id, name FROM public.components where activ=1 ORDER BY id ASC`;
 
         try {
-            const res = await this.pool.query(query);
+            const res = await pool.query(query);
 
             if (res.rowCount) {
                 return res.rows;            
@@ -44,9 +47,11 @@ export class ComponentService {
         const query = `SELECT * FROM public.components where id=$1 limit 1`;
         
         const { id, db } = params;
-
+        
+        const pool = this.poolService.getPool(db);
+        
         try {
-            const res = await this.pool.query(query,[id]);
+            const res = await pool.query(query,[id]);
 
             if (res.rowCount==1) {
                 return res.rows;            

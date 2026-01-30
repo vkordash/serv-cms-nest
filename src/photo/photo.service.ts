@@ -4,7 +4,8 @@ import striptags from 'striptags';
 import { ConfigService } from '@nestjs/config';
 import { PhotoDto } from './dto/photo.dto';
 import { getSrc } from 'src/common/src-img';
-import { Pool } from 'pg';
+import { TenantPoolService } from 'src/tenant-pool/tenant-pool.service';
+//import { Pool } from 'pg';
 import * as he from 'he';
 
 export interface PhotoListResponse {
@@ -19,13 +20,15 @@ export class PhotoService {
     private readonly logger = new Logger(PhotoService.name);
 
     constructor(
-        @Inject('PG_CONNECTION') private readonly pool: Pool,
+        private poolService: TenantPoolService,
         private configService: ConfigService
     ) {}
 
     async getListCollections(params: {search:string, db: string }): Promise<PhotoDto> {
         
         const { search, db } = params;
+
+        const pool = this.poolService.getPool(db);
 
         try {
            
@@ -37,7 +40,7 @@ export class PhotoService {
                     parent=15
                 ORDER BY create_date DESC 
                `;                        
-            const { rows } = await this.pool.query(query);
+            const { rows } = await pool.query(query);
             return rows;
         }  catch (error) {
             this.logger.error(`❌ Помилка отримання списку фотогалерей : ${error.message}`, error.stack);
@@ -48,6 +51,8 @@ export class PhotoService {
     async getList(params: { id_menu: number, offset:number, limit:number, search:string, db: string }): Promise<PhotoListResponse> {
         
         const { id_menu, offset, limit, search, db } = params;
+
+        const pool = this.poolService.getPool(db);
 
         const BOOL_FIELDS = ['activ', 'show_author'];
         const SiteUrl = this.configService.get<string>('SITE_URL') ?? '';
@@ -83,7 +88,7 @@ export class PhotoService {
                 OFFSET 
                     $3`;
 
-            const { rows } = await this.pool.query(query, queryParams);
+            const { rows } = await pool.query(query, queryParams);
             const total = rows.length ? Number(rows[0].total_count) : 0;
 
             if (rows.length === 0) {
@@ -117,6 +122,8 @@ export class PhotoService {
         
         const { id_menu, search, db } = params;
 
+        const pool = this.poolService.getPool(db);
+
         if (!id_menu || isNaN(Number(id_menu))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
         }
@@ -128,7 +135,7 @@ export class PhotoService {
                 FROM photos_new 
                 WHERE id_menu=${id_menu} 
                 `;                        
-            const { rows } = await this.pool.query(query);
+            const { rows } = await pool.query(query);
             return rows[0];
         }  catch (error) {
             this.logger.error(`❌ Помилка отримання списку сторінок (id=${id_menu}): ${error.message}`, error.stack);
@@ -140,6 +147,8 @@ export class PhotoService {
         
         const { id, name, val, id_pers, db } = params; 
         
+        const pool = this.poolService.getPool(db);
+
         try {
             
            const arrBoolean = ['new_window', 'activ', 'show_author'];
@@ -175,7 +184,7 @@ export class PhotoService {
                 WHERE id = $3
                 `;
             console.log(query);
-            const res =  await this.pool.query(query, [_val, id_pers, id]);           
+            const res =  await pool.query(query, [_val, id_pers, id]);           
             return res;                      
         } catch (error) {
             this.logger.error(`❌ Помилка update меню (id_page=${id}): ${error.message}`, error.stack);

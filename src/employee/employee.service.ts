@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Pool } from 'pg';
+import { TenantPoolService } from 'src/tenant-pool/tenant-pool.service';
+//import { Pool } from 'pg';
 
 @Injectable()
 export class EmployeeService {
@@ -8,7 +9,7 @@ export class EmployeeService {
     private readonly logger = new Logger(EmployeeService.name);
     
     constructor(
-        @Inject('PG_CONNECTION') private readonly pool: Pool,
+        private poolService: TenantPoolService,
         private configService: ConfigService
     ) {}
 
@@ -16,12 +17,14 @@ export class EmployeeService {
 
         const { id_pers, db } = params;
 
+        const pool = this.poolService.getPool(db);
+
         try {
             const query = `
                 SELECT * 
                 FROM employee_new 
                 WHERE  id = ${id_pers}`;
-            const { rows } = await this.pool.query(query);
+            const { rows } = await pool.query(query);
             return  rows[0];
         } catch (error) {
             this.logger.error(`❌ Помилка отримання  : ${id_pers}: ${error.message}`, error.stack);
@@ -32,6 +35,8 @@ export class EmployeeService {
     async getAccess(params: {id: number, db:string}): Promise<any> {
 
         const { id, db } = params;
+        
+        const pool = this.poolService.getPool(db);
 
         try {
             const query = `
@@ -44,7 +49,7 @@ export class EmployeeService {
                     id not in (select id_user from access_new where id_menu=${id}) 
                 ORDER  by full_name
                 `;
-            const { rows } = await this.pool.query(query);
+            const { rows } = await pool.query(query);
             return  rows;
         } catch (error) {
             this.logger.error(`❌ Помилка отримання  : ${id}: ${error.message}`, error.stack);
@@ -61,6 +66,8 @@ export class EmployeeService {
 
         const { id_pers, name, val, db } = params;
         
+        const pool = this.poolService.getPool(db);
+
         try {
 
             const arrName = ['coname', 'fname', 'lname', 'post', 'email' ];
@@ -76,7 +83,7 @@ export class EmployeeService {
                 const _arg_upd = [val, id_pers, id_pers];
                 console.log(query);
                 console.log(_arg_upd);
-                const res =  await this.pool.query(query, _arg_upd);           
+                const res =  await pool.query(query, _arg_upd);           
                 return res.rowCount;
             }
             else {

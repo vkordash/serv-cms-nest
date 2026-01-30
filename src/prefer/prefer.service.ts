@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Pool } from 'pg';
+import { TenantPoolService } from 'src/tenant-pool/tenant-pool.service';
 
 
 @Injectable()
@@ -10,20 +10,22 @@ export class PreferService {
     private Prefer:any = {};
 
     constructor(
-        @Inject('PG_CONNECTION') private readonly pool: Pool,
+        private poolService: TenantPoolService,
         private configService: ConfigService
     ) {}
 
     async getDataOrg(params: { name: string, db: string }): Promise<any> {
 
-        const { name } = params;
-
+        const { name, db } = params;
+        
+        const pool = this.poolService.getPool(db);
+        
         try {
             const query = `
                 SELECT name, val
                 FROM prefer_new 
                 WHERE  id =1 and name='${name}')`;
-            const { rows } = await this.pool.query(query);
+            const { rows } = await pool.query(query);
             return  rows[0]['val'];
         } catch (error) {
             this.logger.error(`❌ Помилка отримання налаштувань : ${name}: ${error.message}`, error.stack);
@@ -41,6 +43,8 @@ export class PreferService {
 
         const { id_pers,db, id_org, name, val} = params;
         
+        const pool = this.poolService.getPool(db);
+
         try {
             
             let _val: any;
@@ -92,7 +96,7 @@ export class PreferService {
                     AND name = $3
                 `;
             
-            const res_sel = await this.pool.query(query_sel,[id_org,db,name]);
+            const res_sel = await pool.query(query_sel,[id_org,db,name]);
             if (res_sel.rowCount == 0) {
                 const query = `
                 INSERT INTO prefer_new
@@ -114,7 +118,7 @@ export class PreferService {
                         $5
                     );                
                 `;
-                const res =  await this.pool.query(query, [id_org, 0, db, name, _val ]);           
+                const res =  await pool.query(query, [id_org, 0, db, name, _val ]);           
                 return res.rowCount;
             }
             else {
@@ -127,7 +131,7 @@ export class PreferService {
                     AND db = $4
                     AND name = $5
                 `;
-                const res =  await this.pool.query(query, [_val, id_org, 0, db, name ]);           
+                const res =  await pool.query(query, [_val, id_org, 0, db, name ]);           
                 return res.rowCount;
             }             
         } catch (error) {
@@ -140,6 +144,8 @@ export class PreferService {
 
         const { id_pers, name, db } = params;
         
+        const pool = this.poolService.getPool(db);
+
         try {
             
             const query = (name) 
@@ -156,7 +162,7 @@ export class PreferService {
                 ? [id_pers,name]
                 : [id_pers];
 
-            const { rows } = await this.pool.query(query,_arg);
+            const { rows } = await pool.query(query,_arg);
 
             return rows.reduce<Record<string, string>>((acc, item) => {
                 if (item.val == 'true') {
@@ -184,6 +190,8 @@ export class PreferService {
 
         const { id_pers, db, id_org, name, val } = params;
         
+        const pool = this.poolService.getPool(db);
+
         try {
             
             console.log(params);
@@ -238,7 +246,7 @@ export class PreferService {
             const _arg_sel = [id_org, id_pers ,db, name];
             //console.log(query_sel);
             //console.log(_arg_sel);
-            const res_sel = await this.pool.query(query_sel,_arg_sel);
+            const res_sel = await pool.query(query_sel,_arg_sel);
             //console.log(res_sel.rowCount);
             //console.log(val);
             if (res_sel.rowCount == 0) {
@@ -272,7 +280,7 @@ export class PreferService {
                 `;
                 //console.log(query);
                 const _arg_ins = [id_org, id_pers, db, name, val, id_pers, id_pers ];
-                const res =  await this.pool.query(query,_arg_ins );           
+                const res =  await pool.query(query,_arg_ins );           
                 return res.rowCount;
             }
             else {
@@ -291,7 +299,7 @@ export class PreferService {
                 const _arg_upd = [val, id_org, id_pers, db, name ];
                 console.log(query);
                 console.log(_arg_upd);
-                const res =  await this.pool.query(query, _arg_upd);           
+                const res =  await pool.query(query, _arg_upd);           
                 console.log(query);
                 return res.rowCount;
             } 

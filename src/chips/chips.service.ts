@@ -1,8 +1,9 @@
 import { Inject, Injectable, Logger, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 //import striptags from 'striptags';
 import { ConfigService } from '@nestjs/config';
+import { TenantPoolService } from 'src/tenant-pool/tenant-pool.service';
 //import { chips.dto } from './dto/menuItem.dto';
-import { Pool } from 'pg';
+//import { Pool } from 'pg';
 //import { decode } from 'he';
 
 @Injectable()
@@ -11,13 +12,15 @@ export class ChipsService {
     private readonly logger = new Logger(ChipsService.name);
     
     constructor(
-        @Inject('PG_CONNECTION') private readonly pool: Pool,
+        private poolService: TenantPoolService,
         private configService: ConfigService
     ) {}
 
     async getData(params: { id: number, id_component : number, db:string }): Promise<string[]> {
             const { id, id_component, db } = params;
     
+            const pool = this.poolService.getPool(db);
+
             if (!id || isNaN(Number(id))) {
                 throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
             }
@@ -32,7 +35,7 @@ export class ChipsService {
                         name 
                     FROM tags 
                     WHERE  id in (select id_tag from link_tags where id_component=${id_component} and link_tags.id=${id})`;                
-                const { rows } = await this.pool.query(query);
+                const { rows } = await pool.query(query);
                 return  rows.map((item)=>item['name']);                 
             } catch (error) {
                 this.logger.error(`❌ Помилка отримання списку тегів id=${id}  id:component:${id_component}: ${error.message}`, error.stack);
@@ -44,6 +47,8 @@ export class ChipsService {
             
         const { id, id_component, name, db } = params;
     
+        const pool = this.poolService.getPool(db);
+
             if (!id || isNaN(Number(id))) {
                 throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
             }
@@ -66,7 +71,7 @@ export class ChipsService {
                                 name='${name}' 
                             LIMIT 1)
                 `;
-                const res = await this.pool.query(query);
+                const res = await pool.query(query);
                 return  res;                 
             } catch (error) {
                 this.logger.error(`❌ Помилка вилучення тегу id=${id}  id:component:${id_component}  name ${name}: ${error.message}`, error.stack);
@@ -78,6 +83,8 @@ export class ChipsService {
             
         const { id, id_component, name, db } = params;
     
+        const pool = this.poolService.getPool(db);
+
             if (!id || isNaN(Number(id))) {
                 throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
             }
@@ -88,20 +95,20 @@ export class ChipsService {
             try {
                 // ✅ Получаем все активные элементы, у которых parent = id
                 
-                const res0 =  await this.pool.query(`select id from tags where name=$1 limit 1`,[name]);
+                const res0 =  await pool.query(`select id from tags where name=$1 limit 1`,[name]);
                 if (res0.rowCount == 0) {
                     // Такого название в справочнике тегов нет
                     //Добавляем слово в cправочник
-                    const res1 = await this.pool.query(`select nextval('tags_id_seq')`);  
+                    const res1 = await pool.query(`select nextval('tags_id_seq')`);  
                     var id_tag  = res1.rows[0].nextval;
-                    const res2 =  await this.pool.query(`insert into tags (id,name) values ($1,$2)`,[id_tag, name]);          
+                    const res2 =  await pool.query(`insert into tags (id,name) values ($1,$2)`,[id_tag, name]);          
                 }
                 else {
                     var id_tag = res0.rows[0].id;    
                 }
-                const res3 =  await this.pool.query(`select count(*) from link_tags where id=$1 and id_component=$2 and id_tag=$3`,[id,id_component,id_tag]);
+                const res3 =  await pool.query(`select count(*) from link_tags where id=$1 and id_component=$2 and id_tag=$3`,[id,id_component,id_tag]);
                 if (res3.rows[0].count == 0) {
-                    const res4 =  await this.pool.query(`insert into link_tags (id,id_component,id_tag) values ($1,$2,$3)`,[id,id_component,id_tag]);                         
+                    const res4 =  await pool.query(`insert into link_tags (id,id_component,id_tag) values ($1,$2,$3)`,[id,id_component,id_tag]);                         
                 }
                 return  true;                 
             } catch (error) {

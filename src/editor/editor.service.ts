@@ -2,7 +2,8 @@ import { Inject, Injectable, Logger, InternalServerErrorException, BadRequestExc
 import striptags from 'striptags';
 import { ConfigService } from '@nestjs/config';
 import { EditorDto } from './dto/editor.dto';
-import { Pool } from 'pg';
+import { TenantPoolService } from 'src/tenant-pool/tenant-pool.service';
+//import { Pool } from 'pg';
 import * as he from 'he';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -44,7 +45,7 @@ export class EditorService {
     }
 
     constructor(
-        @Inject('PG_CONNECTION') private readonly pool: Pool,
+        private poolService: TenantPoolService,
         private configService: ConfigService
     ) {}
 
@@ -54,6 +55,8 @@ export class EditorService {
         // const res =await getPool(db).query("UPDATE pages_new set text=$1 where id=$2",[text,id]);  
         //console.log(res);      
         const { id_page, text, id_pers, id_menu, tp_page, id_org, db} = params;
+
+        const pool = this.poolService.getPool(db);
 
         if (!id_page || isNaN(Number(id_page))) {
             throw new BadRequestException('Параметр "pageId" обязателен и должен быть числом');
@@ -101,7 +104,7 @@ export class EditorService {
                 [id_menu, text, id_pers, id_pers, id_org]
                 : [id_page,text,id_pers]; 
             
-            const { rows } = await this.pool.query(query,_arg);
+            const { rows } = await pool.query(query,_arg);
             
             if (id_page==0) {
                 const query_upload = `
@@ -114,7 +117,7 @@ export class EditorService {
                         create_user = $3
                 `; 
                 
-                const  res  = await this.pool.query(query_upload,[rows.id, id_menu, id_pers]);
+                const  res  = await pool.query(query_upload,[rows.id, id_menu, id_pers]);
             }
             console.log(rows[0]);
             return rows;             
@@ -127,7 +130,9 @@ export class EditorService {
     async getSubMenu (params: { id_menu: number, id_pers:number, db: string }): Promise<any> {
         
         const { id_menu, id_pers, db } = params;
-
+        
+        const pool = this.poolService.getPool(db);
+        
         try {
 
             const query = `
@@ -145,7 +150,7 @@ export class EditorService {
                 ORDER BY pn
             `;
 
-            const res = await this.pool.query(query);
+            const res = await pool.query(query);
             if (res.rowCount == 0) {
                 return {'ok':false,'data':''};
             }
@@ -176,6 +181,8 @@ export class EditorService {
         //console.log(res);      
         const { id_page, id_menu, id_component, id_pers, path, srcDir, db} = params;
 
+        const pool = this.poolService.getPool(db);
+
         const targetDir = srcDir.replace('web_docs', 'uploads');
         const lnk = await this.createSymlink(path, targetDir);
 
@@ -205,7 +212,7 @@ export class EditorService {
                 `;
             const _arg = [id_page, id_menu, path, lnk, id_pers ];
 
-            const { rows } = await this.pool.query(query,_arg);
+            const { rows } = await pool.query(query,_arg);
             
             console.log(rows);
             return lnk;             

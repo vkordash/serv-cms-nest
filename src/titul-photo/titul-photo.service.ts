@@ -3,6 +3,7 @@ import { Inject, Injectable, Logger, InternalServerErrorException, BadRequestExc
 import { ConfigService } from '@nestjs/config';
 import { TitulPhotoDto } from './dto/titul-photo.dto';
 import { Pool } from 'pg';
+import { TenantPoolService } from 'src/tenant-pool/tenant-pool.service';
 import { getSrc } from 'src/common/src-img';
 //import { decode } from 'he';
 
@@ -12,7 +13,7 @@ export class TitulPhotoService {
     private readonly logger = new Logger(TitulPhotoService.name);
     
     constructor(
-        @Inject('PG_CONNECTION') private readonly pool: Pool,
+        private poolService: TenantPoolService,
         private configService: ConfigService
     ) {}
 
@@ -27,11 +28,13 @@ export class TitulPhotoService {
         return 'http://192.168.77.253/test_docs/nest/nest_cms/src/'+src;
     }*/
 
-    async getTitPhoto(params: { id: number }): Promise<TitulPhotoDto[]> {
+    async getTitPhoto(params: { id: number, db:string }): Promise<TitulPhotoDto[]> {
         
         const SiteUrl = this.configService.get<string>('SITE_URL') ?? null;
 
-        const { id } = params;
+        const { id, db } = params;
+
+        const pool = this.poolService.getPool(db);
 
         if (!id || isNaN(Number(id))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -55,7 +58,7 @@ export class TitulPhotoService {
                 LIMIT 1              
             `;
             
-            const res = await this.pool.query(query);
+            const res = await pool.query(query);
             if (res.rowCount == 0)
                 return [];
             const rows = res.rows;
@@ -67,9 +70,11 @@ export class TitulPhotoService {
         }
     }
 
-    async delete(params: { id: number }): Promise<{}> {
+    async delete(params: { id: number, db: string }): Promise<{}> {
         
-        const { id } = params;
+        const { id, db } = params;
+
+        const pool = this.poolService.getPool(db);
 
         if (!id || isNaN(Number(id))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -81,7 +86,7 @@ export class TitulPhotoService {
                 DELETE FROM photos_new
                 WHERE id_page=${id} and id_menu=0
             `;
-            const res = await this.pool.query(query);
+            const res = await pool.query(query);
             return {};
         } catch (error) {
             this.logger.error(`❌ Помилка вилучення титульного фото (id=${id}): ${error.message}`, error.stack);
@@ -89,10 +94,12 @@ export class TitulPhotoService {
         }
     }
 
-    async update(params: { id:number, title:string, alt:string, height:number, width:number, id_pers: number }): Promise<{}> {
+    async update(params: { id:number, title:string, alt:string, height:number, width:number, id_pers: number, db: string }): Promise<{}> {
          
-        const { id, title, alt, height, width, id_pers } = params;
+        const { id, title, alt, height, width, id_pers, db } = params;
 
+        const pool = this.poolService.getPool(db);
+        
         if (!id || isNaN(Number(id))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
         }
@@ -110,7 +117,7 @@ export class TitulPhotoService {
                 WHERE id_page=${id}                
             `;
             console.log(query);
-            const res = await this.pool.query(query);
+            const res = await pool.query(query);
             return res.rows;
         } catch (error) {
             this.logger.error(`❌ Помилка оновлення титульного фото (id=${id}): ${error.message}`, error.stack);

@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Pool } from 'pg';
+//import { Pool } from 'pg';
+import { TenantPoolService } from 'src/tenant-pool/tenant-pool.service';
 
 @Injectable()
 export class FileService {
@@ -8,12 +9,15 @@ export class FileService {
     private readonly logger = new Logger(FileService.name);
     
     constructor(
-        @Inject('PG_CONNECTION') private readonly pool: Pool,
+        private poolService: TenantPoolService,
         private configService: ConfigService
     ) {}
 
 
      async setMenuIcon(id: number, icon:string, id_pers: number, db:string): Promise<any> {
+
+        const pool = this.poolService.getPool(db);
+
         try {
             const query = 
                 `UPDATE 
@@ -25,7 +29,7 @@ export class FileService {
                 WHERE 
                     id=$1`;
 
-            const { res } = await this.pool.query(query,[id, icon, id_pers]);
+            const { res } = await pool.query(query,[id, icon, id_pers]);
             return res;                 
         } catch (error) {
             this.logger.error(`❌ Помилка отримання  : ${id}: ${error.message}`, error.stack);
@@ -36,7 +40,8 @@ export class FileService {
     async setPhotoPage(id: number, src:string, id_pers: number, db:string): Promise<any> {
 
         //const id_org = this.configService.get<string>('ID_ORG') ?? null;
-
+        const pool = this.poolService.getPool(db);
+        
         try {
             const query = `
                 UPDATE pages_new
@@ -46,7 +51,7 @@ export class FileService {
                 WHERE id = $1
                 RETURNING photo_src 
                 `;
-            const { rows }  = await this.pool.query(query, [id, src, id_pers]);
+            const { rows }  = await pool.query(query, [id, src, id_pers]);
             console.log(query);
             return rows[0];                 
         } catch (error) {
@@ -59,6 +64,8 @@ export class FileService {
 
         try {
             //const id_org = this.configService.get<string>('ID_ORG') ?? null;
+
+            const pool = this.poolService.getPool(db);
 
             const query = `
                 INSERT INTO 
@@ -78,7 +85,7 @@ export class FileService {
                     $4, 
                     $5); 
                 `;
-            const { rows }  = await this.pool.query(query, [id, src, id_pers, id_pers, id_org]);
+            const { rows }  = await pool.query(query, [id, src, id_pers, id_pers, id_org]);
             return rows;                 
         } catch (error) {
             this.logger.error(`❌ Помилка отримання  : ${id}: ${error.message}`, error.stack);
@@ -119,6 +126,9 @@ export class FileService {
     }*/
 
     async setPhotoVideoCollection(id: number, icon:string, id_pers: number, db:string): Promise<any> {
+
+        const pool = this.poolService.getPool(db);
+
         try {
             const query = 
                 `UPDATE 
@@ -126,7 +136,7 @@ export class FileService {
                 SET icon='${icon}' 
                 WHERE id=${id}`;
 
-            const { res } = await this.pool.query(query);
+            const { res } = await pool.query(query);
             return res;                 
         } catch (error) {
             this.logger.error(`❌ Помилка отримання  : ${id}: ${error.message}`, error.stack);
@@ -135,6 +145,9 @@ export class FileService {
     }
 
     async setPhotoSliderPage(id: number, icon:string, id_pers: number, db:string): Promise<any> {
+        
+        const pool = this.poolService.getPool(db);
+
         try {
             const query = 
                 `UPDATE 
@@ -142,7 +155,7 @@ export class FileService {
                 SET icon='${icon}' 
                 WHERE id=${id}`;
 
-            const { res } = await this.pool.query(query);
+            const { res } = await pool.query(query);
             return res;                 
         } catch (error) {
             this.logger.error(`❌ Помилка отримання  : ${id}: ${error.message}`, error.stack);
@@ -169,11 +182,12 @@ export class FileService {
     async setPhotoCollection(id: number, src:string, id_pers: number, id_org: number, db:string): Promise<any> {
 
         //const id_org = this.configService.get<string>('ID_ORG') ?? null;
+        const pool = this.poolService.getPool(db);
 
         try {
 
             const _query = `select nextval('pages_new_id_seq')`;  
-            const _res = await this.pool.query(_query);
+            const _res = await pool.query(_query);
             const id_page  = _res.rows[0].nextval;
 
             const query_page = `
@@ -188,7 +202,7 @@ export class FileService {
                     ${id},
                     '....'
                 )`;                 
-            const res_page = await this.pool.query(query_page);
+            const res_page = await pool.query(query_page);
 
             const query = 
                 `INSERT INTO
@@ -202,7 +216,7 @@ export class FileService {
                         id_org) 
                     VALUES  (${id_page},'${src}',200,${id},'...','...',${id_org})`;
 
-            const  res  = await this.pool.query(query);
+            const  res  = await pool.query(query);
             console.log(query);
             return src;                 
         } catch (error) {

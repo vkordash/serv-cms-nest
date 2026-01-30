@@ -2,7 +2,8 @@ import { Inject, Injectable, Logger, InternalServerErrorException, BadRequestExc
 import striptags from 'striptags';
 import { ConfigService } from '@nestjs/config';
 import { PageDto } from './dto/page.dto';
-import { Pool } from 'pg';
+import { TenantPoolService } from 'src/tenant-pool/tenant-pool.service';
+//import { Pool } from 'pg';
 import * as he from 'he';
 
 export interface PageListResponse {
@@ -42,12 +43,15 @@ export class PageService {
     }
 
     constructor(
-        @Inject('PG_CONNECTION') private readonly pool: Pool,
+        private poolService: TenantPoolService,
         private configService: ConfigService
     ) {}
 
-    async getPage(params: { id: number, tp:number }): Promise<PageDto> {
-        const { id, tp } = params;
+    async getPage(params: { id: number, tp:number, db: string }): Promise<PageDto> {
+        
+        const { id, tp, db } = params;
+        
+        const pool = this.poolService.getPool(db);
 
         if (!id || isNaN(Number(id))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -59,7 +63,7 @@ export class PageService {
                 `SELECT id, head, title, text, create_date as date,id_menu FROM pages_new WHERE id_menu=${id} ORDER BY create_date DESC LIMIT 1`
                 : `SELECT id, head, title, text, create_date as date,id_menu FROM pages_new WHERE id=${id} ORDER BY create_date DESC LIMIT 1`
            
-            const { rows } = await this.pool.query(query);
+            const { rows } = await pool.query(query);
             let page=rows[0];
             if (page!=undefined) {
                 if (page.head)
@@ -86,9 +90,11 @@ export class PageService {
         }   
     }
 
-    async getList(params: { id_menu: number, offset:number, limit:number, search?:string }): Promise<PageListResponse> {
+    async getList(params: { id_menu: number, offset:number, limit:number, db: string, search?:string }): Promise<PageListResponse> {
         
-        const { id_menu, offset, limit, search } = params;
+        const { id_menu, offset, limit, search, db } = params;
+
+        const pool = this.poolService.getPool(db);
 
         const BOOL_FIELDS = ['activ', 'show_dt', 'rss', 'soc_nets', 'sl_main','sl_news','sl_pages','sl_banners','new_window'];
         //const siteUrl = this.configService.get<string>('SITE_URL') ?? '';
@@ -124,7 +130,7 @@ export class PageService {
                 OFFSET 
                     $3`;
 
-            const { rows } = await this.pool.query(query, queryParams);
+            const { rows } = await pool.query(query, queryParams);
             const total = rows.length ? Number(rows[0].total_count) : 0;
 
             if (rows.length === 0) {
@@ -169,9 +175,11 @@ export class PageService {
         }   
     }
 
-    async getCnt(params: { id_menu: number, search?:string }): Promise<PageDto> {
+    async getCnt(params: { id_menu: number, db: string, search?:string }): Promise<PageDto> {
         
-        const { id_menu, search } = params;
+        const { id_menu, search, db } = params;
+
+        const pool = this.poolService.getPool(db);
 
         if (!id_menu || isNaN(Number(id_menu))) {
             throw new BadRequestException('Параметр "id_menu" обязателен и должен быть числом');
@@ -195,7 +203,7 @@ export class PageService {
                     id_menu = $1 ${searchQuery}
             `;
            
-            const { rows } = await this.pool.query(query, queryParams);
+            const { rows } = await pool.query(query, queryParams);
 
             return rows[0];
         }  catch (error) {
@@ -204,9 +212,11 @@ export class PageService {
         }   
     }
 
-    async add(params: { id_menu: number, id_pers: number, id_org: number }): Promise<any> {
+    async add(params: { id_menu: number, id_pers: number, id_org: number, db: string }): Promise<any> {
         
-        const { id_menu, id_pers, id_org } = params;
+        const { id_menu, id_pers, id_org, db } = params;
+        
+        const pool = this.poolService.getPool(db);
         
         if (!id_menu || isNaN(Number(id_menu))) {
             throw new BadRequestException('Параметр "id_menu" обязателен и должен быть числом');
@@ -239,7 +249,7 @@ export class PageService {
                     )`;
             
             console.log(query);
-            const res = await this.pool.query(query);
+            const res = await pool.query(query);
             return res; 
         } catch (error) {
             this.logger.error(`❌ Помилка створення нового сладу id_menu= ${id_menu}: ${error.message}`, error.stack);
@@ -247,10 +257,14 @@ export class PageService {
         }
     }
 
-    async update(params: { id_page: number, name: string, val:string, id_pers:number }){
+    async update(params: { id_page: number, name: string, val:string, id_pers:number, db: string }){
         
-        const { id_page, name, val, id_pers  } = params; 
+        const { id_page, name, val, id_pers, db  } = params; 
+        
         const last_user = '9999'; //request.user.user.id_pers
+
+        const pool = this.poolService.getPool(db);
+
         try {
             
             let _val: any;
@@ -292,7 +306,7 @@ export class PageService {
                     last_user = $2
                 WHERE id = $3
                 `;
-            const res =  await this.pool.query(query, [_val, last_user, id_page]);           
+            const res =  await pool.query(query, [_val, last_user, id_page]);           
             return res.rowCount;                      
         } catch (error) {
             this.logger.error(`❌ Помилка update меню (id=${id_page}): ${error.message}`, error.stack);
@@ -300,9 +314,11 @@ export class PageService {
         }  
     }
 
-    async getPref(params: { id: number }): Promise<any> {
+    async getPref(params: { id: number, db: string }): Promise<any> {
         
-        const { id } = params;
+        const { id, db } = params;
+
+        const pool = this.poolService.getPool(db);
 
         if (!id || isNaN(Number(id))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -341,7 +357,7 @@ export class PageService {
             
             console.log(query);
 
-            const { rows } = await this.pool.query(query);
+            const { rows } = await pool.query(query);
 
             return rows[0];
         }  catch (error) {
@@ -351,9 +367,11 @@ export class PageService {
     }
 
 
-    async getListVideo(params: { id_menu: number, offset:number, limit:number, search?:string }): Promise<PageDto> {
+    async getListVideo(params: { id_menu: number, offset:number, limit:number, db: string, search?:string }): Promise<PageDto> {
         
-        const { id_menu, offset, limit, search } = params;
+        const { id_menu, offset, limit, db, search } = params;
+
+        const pool = this.poolService.getPool(db);
 
         const BOOL_FIELDS = ['activ', 'show_dt', 'rss', 'soc_nets', 'sl_main','sl_news','sl_pages','sl_banners','new_window'];
         
@@ -388,7 +406,7 @@ export class PageService {
             
             console.log(query);
 
-            const { rows } = await this.pool.query(query);
+            const { rows } = await pool.query(query);
 
             for (const row of rows) {
                     
@@ -424,8 +442,10 @@ export class PageService {
         }   
     }
     
-    async delTitulPhoto(params: { id: number, id_pers:number }): Promise<PageDto> {
-        const { id, id_pers } = params;
+    async delTitulPhoto(params: { id: number, id_pers:number, db: string }): Promise<PageDto> {
+        const { id, id_pers, db } = params;
+
+        const pool = this.poolService.getPool(db);
 
         if (!id || isNaN(Number(id))) {
             throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
@@ -441,7 +461,7 @@ export class PageService {
                     last_user = $2
                 WHERE id = $1
                 `;
-            const { rows }  = await this.pool.query(query, [id, id_pers]);
+            const { rows }  = await pool.query(query, [id, id_pers]);
             console.log(query);
             return rows[0]; 
            

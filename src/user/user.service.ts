@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Pool } from 'pg';
+import { TenantPoolService } from 'src/tenant-pool/tenant-pool.service';
 
 @Injectable()
 export class UserService {
@@ -8,7 +9,7 @@ export class UserService {
     private readonly logger = new Logger(UserService.name);
     
     constructor(
-        @Inject('PG_CONNECTION') private readonly pool: Pool,
+        private poolService: TenantPoolService,
         private configService: ConfigService
     ) {}
 
@@ -16,6 +17,8 @@ export class UserService {
             
             const { id_pers, db } = params;
     
+            const pool = this.poolService.getPool(db);
+
             if (!id_pers || isNaN(Number(id_pers))) {
                 throw new BadRequestException('Параметр "id" обязателен и должен быть числом');
             }
@@ -28,7 +31,7 @@ export class UserService {
                     FROM users_new 
                     WHERE 
                         id_pers=${id_pers} limit 1`;                
-                const { rows } = await this.pool.query(query);
+                const { rows } = await pool.query(query);
                 return  rows[0];                 
             } catch (error) {
                 this.logger.error(`❌ Помилка отримання користувача id=${id_pers}  : ${error.message}`, error.stack);
