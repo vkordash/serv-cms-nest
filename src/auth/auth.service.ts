@@ -33,7 +33,7 @@ export class AuthService {
     try {
         
       // Получаем пул именно для той базы, которая пришла в запросе (db)
-      const pool = this.poolService.getPool(db);
+      const pool = this.poolService.getPool('mena_rada');
 
         const query = `
           SELECT 
@@ -51,9 +51,12 @@ export class AuthService {
           WHERE login='${login}' and activ=1 
           limit 1              
           `;
-      //  console.log(query);
+        console.log(query);
         const res = await pool.query(query);
-      
+        
+        console.log(res.rows[0]);
+
+
         if (res.rowCount==1){
             const hash = await this.generateDovecotPassword(passwd);
             if (res.rows[0].password==hash) {
@@ -112,7 +115,7 @@ export class AuthService {
       try {
           //const command = `dovecotpw -s ${scheme} -p ${password}`;
           const command = `doveadm pw -s ${scheme} -p ${password}`;
-          //sudo doveadm pw -s HMAC-MD5 -p Rjhlfi
+          
 
           const { stdout } = await this.execPromise(command);
           return stdout.trim();
